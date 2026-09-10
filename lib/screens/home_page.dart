@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/network.dart';
+import '../models/machine.dart';
 import 'network_list_view.dart';
+import 'create_network_screen.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -21,21 +23,28 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isMenuOpen = false;
   
-  // Dummy data for demonstration. 
-  // You can set this to an empty list `[]` to see the empty state.
   final List<Network> _networks = [
     Network(
       name: 'Production Environment',
       description: 'Main production network handling all user traffic and backend services.',
-      totalMachines: 12,
-      runningMachines: 10,
+      machines: [
+        Machine(name: 'Web Server', tailscaleIp: '100.100.100.1', macAddress: 'AA:BB:CC:DD:EE:01'),
+        Machine(name: 'Database', tailscaleIp: '100.100.100.2', macAddress: 'AA:BB:CC:DD:EE:02'),
+      ],
+      routerIp: '192.168.1.1',
+      routerPort: 9,
+      runningMachines: 2,
       isRouterRunning: true,
     ),
     Network(
       name: 'Testing Sandbox',
       description: 'Isolated network for testing new features and staging deployments.',
-      totalMachines: 5,
-      runningMachines: 2,
+      machines: [
+        Machine(name: 'Test Server', tailscaleIp: '100.100.100.3', macAddress: 'AA:BB:CC:DD:EE:03'),
+      ],
+      routerIp: '192.168.2.1',
+      routerPort: 9,
+      runningMachines: 0,
       isRouterRunning: false,
     ),
   ];
@@ -46,11 +55,24 @@ class _HomePageState extends State<HomePage> {
     });
   }
   
-  void _createNewNetwork() {
-    // TODO: Implement network creation logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Create network tapped')),
+  Future<void> _createNewNetwork() async {
+    final newNetwork = await Navigator.of(context).push<Network>(
+      MaterialPageRoute(
+        builder: (context) => const CreateNetworkScreen(),
+      ),
     );
+
+    if (newNetwork != null) {
+      setState(() {
+        _networks.add(newNetwork);
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Network added successfully')),
+        );
+      }
+    }
   }
 
   @override
@@ -84,7 +106,7 @@ class _HomePageState extends State<HomePage> {
             GestureDetector(
               onTap: _toggleSettingsMenu,
               child: Container(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
               ),
             ),
             
@@ -135,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                           Switch(
                             value: widget.isDarkMode,
                             onChanged: widget.onThemeChanged,
-                            activeColor: Theme.of(context).colorScheme.primary,
+                            activeThumbColor: Theme.of(context).colorScheme.primary,
                           ),
                         ],
                       ),
