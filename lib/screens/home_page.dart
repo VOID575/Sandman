@@ -1,0 +1,161 @@
+import 'package:flutter/material.dart';
+import '../models/network.dart';
+import 'network_list_view.dart';
+
+class HomePage extends StatefulWidget {
+  final String title;
+  final bool isDarkMode;
+  final Function(bool) onThemeChanged;
+
+  const HomePage({
+    super.key,
+    required this.title,
+    required this.isDarkMode,
+    required this.onThemeChanged,
+  });
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isMenuOpen = false;
+  
+  // Dummy data for demonstration. 
+  // You can set this to an empty list `[]` to see the empty state.
+  final List<Network> _networks = [
+    Network(
+      name: 'Production Environment',
+      description: 'Main production network handling all user traffic and backend services.',
+      totalMachines: 12,
+      runningMachines: 10,
+      isRouterRunning: true,
+    ),
+    Network(
+      name: 'Testing Sandbox',
+      description: 'Isolated network for testing new features and staging deployments.',
+      totalMachines: 5,
+      runningMachines: 2,
+      isRouterRunning: false,
+    ),
+  ];
+
+  void _toggleSettingsMenu() {
+    setState(() {
+      _isMenuOpen = !_isMenuOpen;
+    });
+  }
+  
+  void _createNewNetwork() {
+    // TODO: Implement network creation logic
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Create network tapped')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const double settingsMenuWidth = 250;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text(
+          widget.title,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        elevation: 1,
+        actions: [
+          IconButton(
+            onPressed: _toggleSettingsMenu,
+            icon: const Icon(Icons.settings),
+          )
+        ],
+      ),
+      body: Stack(
+        children: [
+          NetworkListView(
+            networks: _networks,
+            onCreateNetwork: _createNewNetwork,
+          ),
+          
+          if (_isMenuOpen)
+            GestureDetector(
+              onTap: _toggleSettingsMenu,
+              child: Container(
+                color: Colors.black.withOpacity(0.3),
+              ),
+            ),
+            
+          // Settings Menu Overlay
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            right: _isMenuOpen ? 0 : -settingsMenuWidth,
+            top: 0,
+            bottom: 0,
+            width: settingsMenuWidth,
+            child: Material(
+              elevation: 8,
+              child: Container(
+                color: Theme.of(context).colorScheme.surface,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Settings',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: _toggleSettingsMenu,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Dark mode',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          Switch(
+                            value: widget.isDarkMode,
+                            onChanged: widget.onThemeChanged,
+                            activeColor: Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _createNewNetwork,
+        tooltip: 'Create Network',
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(
+          Icons.add,
+          color: Theme.of(context).colorScheme.surface,
+        ),
+      ),
+    );
+  }
+}
