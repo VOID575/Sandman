@@ -1,0 +1,38 @@
+import 'dart:io';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sandman/constants/db_contants.dart';
+import 'package:sandman/models/machine.dart';
+
+class DatabaseHelper {
+  // Singleton pattern
+  // Forbids the opening of other database connections in the application
+  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
+  static Database? _database;
+
+  DatabaseHelper._privateConstructor();
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDatabase();
+    return _database!;
+  }
+
+  Future<Database> _initDatabase() async {
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    String path = join(documentsDirectory.path, 'wol_app.db');
+
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate,
+    );
+  }
+
+  Future _onCreate(Database db, int version) async {
+    await db.execute(DbConstants.tableNetworks);
+    await db.execute(DbConstants.tableMachines);
+  }
+
+}
