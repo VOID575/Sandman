@@ -3,6 +3,7 @@ import '../models/network.dart';
 import '../models/machine.dart';
 import 'network_list_view.dart';
 import 'create_network_screen.dart';
+import 'package:sandman/helpers/database/database_helper.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -28,8 +29,18 @@ class _HomePageState extends State<HomePage> {
       name: 'Production Environment',
       description: 'Main production network handling all user traffic and backend services.',
       machines: [
-        Machine(name: 'Web Server', tailscaleIp: '100.100.100.1', macAddress: 'AA:BB:CC:DD:EE:01'),
-        Machine(name: 'Database', tailscaleIp: '100.100.100.2', macAddress: 'AA:BB:CC:DD:EE:02'),
+        Machine(
+            name: 'Web Server', 
+            tailscaleIp: '100.100.100.1', 
+            macAddress: 'AA:BB:CC:DD:EE:01',
+            status: MachineStatus.online,
+        ),
+        Machine(
+            name: 'Database', 
+            tailscaleIp: '100.100.100.2', 
+            macAddress: 'AA:BB:CC:DD:EE:02',
+            status: MachineStatus.online,
+        ),
       ],
       routerIp: '192.168.1.1',
       routerPort: 9,
@@ -40,7 +51,12 @@ class _HomePageState extends State<HomePage> {
       name: 'Testing Sandbox',
       description: 'Isolated network for testing new features and staging deployments.',
       machines: [
-        Machine(name: 'Test Server', tailscaleIp: '100.100.100.3', macAddress: 'AA:BB:CC:DD:EE:03'),
+        Machine(
+            name: 'Test Server', 
+            tailscaleIp: '100.100.100.3', 
+            macAddress: 'AA:BB:CC:DD:EE:03',
+            status: MachineStatus.offline,
+        ),
       ],
       routerIp: '192.168.2.1',
       routerPort: 9,
