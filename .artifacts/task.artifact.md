@@ -1,0 +1,9 @@
+- `[x]` Update `lib/models/machine.dart`
+- `[x]` Update `lib/theme/app_theme.dart`
+- `[x]` Extract `RouterStatusBadge` into `lib/widgets/status_badges.dart`
+- `[x]` Update `lib/widgets/network_card.dart`
+- `[x]` Create `lib/widgets/machine_card.dart`
+- `[x]` Create `lib/screens/network_details_screen.dart`
+- `[x]` Update `lib/screens/network_list_view.dart`
+- `[x]` Update dummy data in `lib/screens/home_page.dart`
+- `[x]` Run `flutter analyze` and verify
