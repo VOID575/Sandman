@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/network.dart';
 import '../models/machine.dart';
+import '../utils/validators.dart';
 
 class CreateNetworkScreen extends StatefulWidget {
   const CreateNetworkScreen({super.key});
@@ -13,12 +14,39 @@ class CreateNetworkScreen extends StatefulWidget {
 class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   final _formKey = GlobalKey<FormState>();
   
-  String _networkName = '';
-  String _description = '';
-  String _routerIp = '';
-  int _routerPort = 0;
+  final _nameController = TextEditingController();
+  final _descController = TextEditingController();
+  final _routerIpController = TextEditingController();
+  final _routerPortController = TextEditingController();
   
   final List<Machine> _machines = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Add listeners to rebuild UI and enable/disable button
+    _nameController.addListener(() => setState(() {}));
+    _descController.addListener(() => setState(() {}));
+    _routerIpController.addListener(() => setState(() {}));
+    _routerPortController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descController.dispose();
+    _routerIpController.dispose();
+    _routerPortController.dispose();
+    super.dispose();
+  }
+
+  bool get _isFormValid {
+    if (Validators.validateRequired(_nameController.text, 'name') != null) return false;
+    if (Validators.validateRequired(_descController.text, 'description') != null) return false;
+    if (Validators.validateIp(_routerIpController.text) != null) return false;
+    if (Validators.validatePort(_routerPortController.text) != null) return false;
+    return true;
+  }
 
   void _addMachine() {
     showDialog(
@@ -37,14 +65,12 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      
       final newNetwork = Network(
-        name: _networkName,
-        description: _description,
+        name: _nameController.text,
+        description: _descController.text,
         machines: _machines,
-        routerIp: _routerIp,
-        routerPort: _routerPort,
+        routerIp: _routerIpController.text,
+        routerPort: int.parse(_routerPortController.text),
         runningMachines: 0,
         isRouterRunning: false,
       );
@@ -63,36 +89,27 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
       ),
       body: Form(
         key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
             TextFormField(
+              controller: _nameController,
               decoration: const InputDecoration(
                 labelText: 'Network Name',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a network name';
-                }
-                return null;
-              },
-              onSaved: (value) => _networkName = value!,
+              validator: (value) => Validators.validateRequired(value, 'network name'),
             ),
             const SizedBox(height: 16),
             TextFormField(
+              controller: _descController,
               decoration: const InputDecoration(
                 labelText: 'Description',
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a description';
-                }
-                return null;
-              },
-              onSaved: (value) => _description = value!,
+              validator: (value) => Validators.validateRequired(value, 'description'),
             ),
             const SizedBox(height: 24),
             Text(
@@ -103,42 +120,30 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
             ),
             const SizedBox(height: 8),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   flex: 2,
                   child: TextFormField(
+                    controller: _routerIpController,
                     decoration: const InputDecoration(
                       labelText: 'Router IP Address',
                       border: OutlineInputBorder(),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Required';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _routerIp = value!,
+                    validator: Validators.validateIp,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: TextFormField(
+                    controller: _routerPortController,
                     decoration: const InputDecoration(
                       labelText: 'WOL Port',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Required';
-                      }
-                      if (int.tryParse(value) == null) {
-                        return 'Invalid';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _routerPort = int.parse(value!),
+                    validator: Validators.validatePort,
                   ),
                 ),
               ],
@@ -200,10 +205,11 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
               ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: _submitForm,
+              onPressed: _isFormValid ? _submitForm : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Theme.of(context).colorScheme.surface,
+                disabledBackgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: const Text('Add the network'),
@@ -226,9 +232,33 @@ class _AddMachineDialog extends StatefulWidget {
 
 class _AddMachineDialogState extends State<_AddMachineDialog> {
   final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  String _tailscaleIp = '';
-  String _macAddress = '';
+  
+  final _nameController = TextEditingController();
+  final _tailscaleIpController = TextEditingController();
+  final _macAddressController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(() => setState(() {}));
+    _tailscaleIpController.addListener(() => setState(() {}));
+    _macAddressController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _tailscaleIpController.dispose();
+    _macAddressController.dispose();
+    super.dispose();
+  }
+
+  bool get _isFormValid {
+    if (Validators.validateRequired(_nameController.text, 'machine name') != null) return false;
+    if (Validators.validateIp(_tailscaleIpController.text) != null) return false;
+    if (Validators.validateMac(_macAddressController.text) != null) return false;
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -236,24 +266,25 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
       title: const Text('Add Machine'),
       content: Form(
         key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
+                controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Machine Name'),
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
-                onSaved: (value) => _name = value!,
+                validator: (value) => Validators.validateRequired(value, 'machine name'),
               ),
               TextFormField(
+                controller: _tailscaleIpController,
                 decoration: const InputDecoration(labelText: 'Tailscale IP'),
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
-                onSaved: (value) => _tailscaleIp = value!,
+                validator: Validators.validateIp,
               ),
               TextFormField(
+                controller: _macAddressController,
                 decoration: const InputDecoration(labelText: 'MAC Address'),
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
-                onSaved: (value) => _macAddress = value!,
+                validator: Validators.validateMac,
               ),
             ],
           ),
@@ -265,17 +296,17 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: () {
+          onPressed: _isFormValid ? () {
             if (_formKey.currentState!.validate()) {
-              _formKey.currentState!.save();
               widget.onAdd(Machine(
-                name: _name,
-                tailscaleIp: _tailscaleIp,
-                macAddress: _macAddress,
+                name: _nameController.text,
+                tailscaleIp: _tailscaleIpController.text,
+                macAddress: _macAddressController.text,
+                status: MachineStatus.offline,
               ));
               Navigator.of(context).pop();
             }
-          },
+          } : null,
           child: const Text('Add'),
         ),
       ],
