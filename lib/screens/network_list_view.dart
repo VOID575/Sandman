@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/network.dart';
 import '../widgets/network_card.dart';
+import 'network_details_screen.dart';
 
 class NetworkListView extends StatelessWidget {
   final List<Network> networks;
@@ -66,7 +67,17 @@ class NetworkListView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16),
       itemCount: networks.length,
       itemBuilder: (context, index) {
-        return NetworkCard(network: networks[index]);
+        final network = networks[index];
+        return NetworkCard(
+          network: network,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => NetworkDetailsScreen(network: network),
+              ),
+            );
+          },
+        );
       },
     );
   }

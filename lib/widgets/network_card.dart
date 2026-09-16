@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import '../models/network.dart';
-import '../theme/app_theme.dart';
+import 'status_badges.dart';
 
 class NetworkCard extends StatelessWidget {
   final Network network;
+  final VoidCallback? onTap;
 
-  const NetworkCard({super.key, required this.network});
+  const NetworkCard({
+    super.key, 
+    required this.network,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,100 +27,62 @@ class NetworkCard extends StatelessWidget {
         ),
       ),
       color: theme.colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: Text(
-                      network.name,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurface,
+      clipBehavior: Clip.antiAlias, // Ensures the InkWell splash stays inside the border
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: Text(
+                        network.name,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                _RouterStatusBadge(isRunning: network.isRouterRunning),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              network.description,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                  RouterStatusBadge(isRunning: network.isRouterRunning),
+                ],
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(
-                  Icons.computer,
-                  size: 20,
+              const SizedBox(height: 8),
+              Text(
+                network.description,
+                style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  '${network.runningMachines} / ${network.totalMachines} Machines running',
-                  style: theme.textTheme.bodySmall?.copyWith(
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Icon(
+                    Icons.computer,
+                    size: 20,
                     color: theme.colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 8),
+                  Text(
+                    '${network.runningMachines} / ${network.totalMachines} Machines running',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class _RouterStatusBadge extends StatelessWidget {
-  final bool isRunning;
-
-  const _RouterStatusBadge({required this.isRunning});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = isRunning ? AppStatusColors.online : AppStatusColors.offline;
-    
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            isRunning ? 'Router Online' : 'Router Offline',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
       ),
     );
   }
