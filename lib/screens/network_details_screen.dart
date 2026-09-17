@@ -27,7 +27,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
   }
 
   Future<void> _loadMachines() async {
-    final machines = await _appDatabase.getMachinesForNetwork(widget.network.id);
+    final machines = await _appDatabase.machineDao.getMachinesForNetwork(widget.network.id);
     setState(() {
       _machines = machines;
       _isLoading = false;

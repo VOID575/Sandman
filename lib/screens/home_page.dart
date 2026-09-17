@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _isLoading = true;
     });
-    final networks = await _appDatabase.getAllNetworks();
+    final networks = await _appDatabase.networkDao.getAllNetworks();
     setState(() {
       _networks = networks;
       _isLoading = false;

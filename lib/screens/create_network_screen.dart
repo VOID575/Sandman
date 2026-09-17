@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sandman/database/app_database.dart';
+import '../database/dao/machine_dao.dart';
 import '../models/machine.dart';
 import 'package:drift/drift.dart' as drift;
 import '../utils/validators.dart';
@@ -20,7 +21,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   final _routerIpController = TextEditingController();
   final _routerPortController = TextEditingController();
   final _appDatabase = AppDatabase.instance;
-  
+
   final List<MachineCompanion> _machines = [];
 
   @override
@@ -74,14 +75,14 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
         routerPort: int.parse(_routerPortController.text),
       );
 
-      final networkId = await _appDatabase.insertNetwork(networkCompanion);
+      final networkId = await _appDatabase.networkDao.insertNetwork(networkCompanion);
       
       for (final machine in _machines) {
         // Create a copy with the actual networkId
         final machineWithNetwork = machine.copyWith(
           networkId: drift.Value(networkId),
         );
-        await _appDatabase.insertMachine(machineWithNetwork);
+        await _appDatabase.machineDao.insertMachine(machineWithNetwork);
       }
       
       if (mounted) {

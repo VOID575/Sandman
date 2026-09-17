@@ -72,7 +72,7 @@ class NetworkCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   FutureBuilder<List<MachineData>>(
-                    future: AppDatabase.instance.getMachinesForNetwork(network.id),
+                    future: AppDatabase.instance.machineDao.getMachinesForNetwork(network.id),
                     builder: (context, snapshot) {
                       final totalMachines = snapshot.data?.length ?? 0;
                       return Text(

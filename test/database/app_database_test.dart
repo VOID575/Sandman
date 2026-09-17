@@ -26,10 +26,10 @@ void main() {
     );
 
     // Act
-    final id = await database.insertNetwork(networkCompanion);
+    final id = await database.networkDao.insertNetwork(networkCompanion);
 
     // Assert
-    final allNetworks = await database.getAllNetworks();
+    final allNetworks = await database.networkDao.getAllNetworks();
     
     expect(allNetworks.length, 1);
     expect(allNetworks.first.id, id);
@@ -43,7 +43,7 @@ void main() {
 
   test('insertMachine should be successful when no fields is missing', () async {
     // Arrange
-    final networkId = await database.insertNetwork(NetworkCompanion.insert(
+    final networkId = await database.networkDao.insertNetwork(NetworkCompanion.insert(
       name: 'Network for Machine',
       description: 'Desc',
       routerIp: '10.0.0.1',
@@ -59,10 +59,10 @@ void main() {
     );
 
     // Act
-    final machineId = await database.insertMachine(machineCompanion);
+    final machineId = await database.machineDao.insertMachine(machineCompanion);
 
     // Assert
-    final machines = await database.getAllMachines();
+    final machines = await database.machineDao.getAllMachines();
 
     expect(machines.length, 1);
     expect(machines.first.id, machineId);
@@ -75,7 +75,7 @@ void main() {
 
   test('getMachineNetwork should be successful when a machine has the network id given in parameters ', () async {
     // Arrange
-    final networkId = await database.insertNetwork(NetworkCompanion.insert(
+    final networkId = await database.networkDao.insertNetwork(NetworkCompanion.insert(
       name: 'Network for Machine',
       description: 'Desc',
       routerIp: '10.0.0.1',
@@ -91,10 +91,10 @@ void main() {
     );
 
     // Act
-    final machineId = await database.insertMachine(machineCompanion);
+    final machineId = await database.machineDao.insertMachine(machineCompanion);
 
     // Assert
-    final machines = await database.getMachinesForNetwork(networkId);
+    final machines = await database.machineDao.getMachinesForNetwork(networkId);
 
     expect(machines.length, 1);
     expect(machines.first.id, machineId);
