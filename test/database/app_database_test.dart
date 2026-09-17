@@ -16,7 +16,8 @@ void main() {
     await database.close();
   });
 
-  test('insertNetwork works correctly', () async {
+  test('insertNetwork should be successful when no fields is missing', () async {
+    // Arrange
     final networkCompanion = NetworkCompanion.insert(
       name: 'Test Network',
       description: 'A network for testing',
@@ -24,8 +25,10 @@ void main() {
       routerPort: 8080,
     );
 
+    // Act
     final id = await database.insertNetwork(networkCompanion);
-    
+
+    // Assert
     final allNetworks = await database.getAllNetworks();
     
     expect(allNetworks.length, 1);
@@ -38,8 +41,8 @@ void main() {
     expect(allNetworks.first.isRouterRunning, false); // Default value
   });
 
-  test('insertMachine works correctly and links to network', () async {
-    // 1. Insert a network first to satisfy foreign key
+  test('insertMachine should be successful when no fields is missing', () async {
+    // Arrange
     final networkId = await database.insertNetwork(NetworkCompanion.insert(
       name: 'Network for Machine',
       description: 'Desc',
@@ -47,7 +50,6 @@ void main() {
       routerPort: 9,
     ));
 
-    // 2. Insert a machine linked to the network
     final machineCompanion = MachineCompanion.insert(
       networkId: networkId,
       name: 'Test Machine',
@@ -56,9 +58,42 @@ void main() {
       status: const Value(MachineStatus.online),
     );
 
+    // Act
     final machineId = await database.insertMachine(machineCompanion);
 
-    // 3. Retrieve machines for that network
+    // Assert
+    final machines = await database.getAllMachines();
+
+    expect(machines.length, 1);
+    expect(machines.first.id, machineId);
+    expect(machines.first.networkId, networkId);
+    expect(machines.first.name, 'Test Machine');
+    expect(machines.first.tailscaleIp, '100.100.100.100');
+    expect(machines.first.macAddress, 'AA:BB:CC:DD:EE:FF');
+    expect(machines.first.status, MachineStatus.online);
+  });
+
+  test('getMachineNetwork should be successful when a machine has the network id given in parameters ', () async {
+    // Arrange
+    final networkId = await database.insertNetwork(NetworkCompanion.insert(
+      name: 'Network for Machine',
+      description: 'Desc',
+      routerIp: '10.0.0.1',
+      routerPort: 9,
+    ));
+
+    final machineCompanion = MachineCompanion.insert(
+      networkId: networkId,
+      name: 'Test Machine',
+      tailscaleIp: '100.100.100.100',
+      macAddress: 'AA:BB:CC:DD:EE:FF',
+      status: const Value(MachineStatus.online),
+    );
+
+    // Act
+    final machineId = await database.insertMachine(machineCompanion);
+
+    // Assert
     final machines = await database.getMachinesForNetwork(networkId);
 
     expect(machines.length, 1);
