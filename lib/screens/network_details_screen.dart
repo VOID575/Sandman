@@ -1,12 +1,10 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import '../models/network.dart';
-import '../models/machine.dart';
+import '../database/app_database.dart';
 import '../widgets/status_badges.dart';
 import '../widgets/machine_card.dart';
 
 class NetworkDetailsScreen extends StatefulWidget {
-  final Network network;
+  final NetworkData network;
 
   const NetworkDetailsScreen({
     super.key,
@@ -18,26 +16,28 @@ class NetworkDetailsScreen extends StatefulWidget {
 }
 
 class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
+  final _appDatabase = AppDatabase.instance;
+  List<MachineData> _machines = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMachines();
+  }
+
+  Future<void> _loadMachines() async {
+    final machines = await _appDatabase.machineDao.getMachinesForNetwork(widget.network.id);
+    setState(() {
+      _machines = machines;
+      _isLoading = false;
+    });
+  }
   
   Future<void> _refreshMachines() async {
-    // Simulate a network request
-    await Future.delayed(const Duration(seconds: 1));
-    
-    // Randomly update some statuses to demonstrate the UI
-    setState(() {
-      final random = Random();
-      for (var machine in widget.network.machines) {
-        // Randomly transition statuses for the sake of the dummy implementation
-        int r = random.nextInt(100);
-        if (machine.status == MachineStatus.offline) {
-          if (r < 30) machine.status = MachineStatus.wakingUp;
-        } else if (machine.status == MachineStatus.wakingUp) {
-          if (r < 80) machine.status = MachineStatus.online;
-        } else {
-          if (r < 10) machine.status = MachineStatus.offline;
-        }
-      }
-    });
+    // In a real app, you would make an API call here to fetch the latest statuses.
+    // For now, we'll just reload from the database.
+    await _loadMachines();
   }
 
   @override
@@ -85,7 +85,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                     const Divider(),
                     const SizedBox(height: 16),
                     Text(
-                      'Machines (${widget.network.totalMachines})',
+                      'Machines (${_machines.length})',
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.onSurface,
@@ -103,7 +103,11 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                 ),
               ),
             ),
-            if (widget.network.machines.isEmpty)
+            if (_isLoading)
+              const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_machines.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(
@@ -119,15 +123,15 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    final machine = widget.network.machines[index];
+                    final machine = _machines[index];
                     return Padding(
                       padding: EdgeInsets.only(
-                        bottom: index == widget.network.machines.length - 1 ? 24.0 : 0,
+                        bottom: index == _machines.length - 1 ? 24.0 : 0,
                       ),
                       child: MachineCard(machine: machine),
                     );
                   },
-                  childCount: widget.network.machines.length,
+                  childCount: _machines.length,
                 ),
               ),
           ],

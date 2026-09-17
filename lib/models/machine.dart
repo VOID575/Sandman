@@ -1,11 +1,15 @@
-class Machine {
-  final String name;
-  final String tailscaleIp;
-  final String macAddress;
+import 'package:drift/drift.dart';
+import 'package:sandman/models/network.dart';
 
-  Machine({
-    required this.name,
-    required this.tailscaleIp,
-    required this.macAddress,
-  });
+enum MachineStatus { online, offline, wakingUp }
+
+class Machine extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get networkId => integer().references(Network, #id)();
+
+  TextColumn get name => text()();
+  TextColumn get tailscaleIp => text()();
+  TextColumn get macAddress => text()();
+
+  IntColumn get status => intEnum<MachineStatus>().withDefault(const Constant(1))();
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../models/network.dart';
+import '../database/app_database.dart';
 import '../widgets/network_card.dart';
 import 'network_details_screen.dart';
 
 class NetworkListView extends StatelessWidget {
-  final List<Network> networks;
+  final List<NetworkData> networks;
   final VoidCallback onCreateNetwork;
 
   const NetworkListView({

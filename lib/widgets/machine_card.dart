@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/machine.dart';
+import '../database/app_database.dart';
 import 'status_badges.dart';
 
 class MachineCard extends StatelessWidget {
-  final Machine machine;
+  final MachineData machine;
 
   const MachineCard({super.key, required this.machine});
 
