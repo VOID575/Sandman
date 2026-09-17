@@ -21,7 +21,7 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'wol_app.db');
+    String path = join(documentsDirectory.path, DbConstants.databaseName);
 
     return await openDatabase(
       path,
