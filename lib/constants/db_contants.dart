@@ -2,7 +2,7 @@ class DbConstants {
 
   static const String tableNetworks = 'networks';
   static const String tableMachines = 'machines';
-  static const String databaseName = 'sandman_app.db';
+  static const String databaseFileName = 'sandman_app.db';
 
 
   static const String createNetworksTable = '''
