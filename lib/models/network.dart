@@ -1,23 +1,14 @@
-import 'machine.dart';
+import 'package:drift/drift.dart';
 
-class Network {
-  final String name;
-  final String description;
-  final List<Machine> machines;
-  final String routerIp;
-  final int routerPort;
-  final int runningMachines;
-  final bool isRouterRunning;
+// TODO : Add validators directly on the object, don't deleguate it to the front
+class Network extends Table{
+  IntColumn get id => integer().autoIncrement()();
 
-  Network({
-    required this.name,
-    required this.description,
-    required this.machines,
-    required this.routerIp,
-    required this.routerPort,
-    required this.runningMachines,
-    required this.isRouterRunning,
-  });
+  TextColumn get name => text()();
+  TextColumn get description => text()();
+  TextColumn get routerIp => text()();
 
-  int get totalMachines => machines.length;
+  IntColumn get routerPort => integer()();
+  IntColumn get runningMachines => integer().withDefault(const Constant(0))();
+  BoolColumn get isRouterRunning => boolean().withDefault(const Constant(false))();
 }

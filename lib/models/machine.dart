@@ -1,43 +1,15 @@
-enum MachineStatus {
-  online,
-  offline,
-  wakingUp,
-}
+import 'package:drift/drift.dart';
+import 'package:sandman/models/network.dart';
 
-class Machine {
-  final String name;
-  final String tailscaleIp;
-  final String macAddress;
-  MachineStatus status;
+enum MachineStatus { online, offline, wakingUp }
 
-  Machine({
-    required this.name,
-    required this.tailscaleIp,
-    required this.macAddress,
-    this.status = MachineStatus.offline,
-  });
+class Machine extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get networkId => integer().references(Network, #id)();
 
-  Map<String, dynamic> toMap() {
-    var map = <String, dynamic>{
-      'tailscale_ip': tailscaleIp,
-      'name': name,
-      'mac_address': macAddress,
-    };
-    // Add id only if it exists
-    // if (id != null) {
-    //   map['id'] = id;
-    // }
-    return map;
-  }
+  TextColumn get name => text()();
+  TextColumn get tailscaleIp => text()();
+  TextColumn get macAddress => text()();
 
-  // Deserialisation (DB -> Objet) : runtime instanciation
-  factory Machine.fromMap(Map<String, dynamic> map) {
-    return Machine(
-      // id: map['id'],
-      name: map['name'],
-      tailscaleIp: map['tailscale_ip'],
-      macAddress: map['mac_address'],
-      status: map['status'],
-    );
-  }
+  IntColumn get status => intEnum<MachineStatus>().withDefault(const Constant(1))();
 }
