@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/network.dart';
+import '../database/app_database.dart';
 import 'status_badges.dart';
 
 class NetworkCard extends StatelessWidget {
-  final Network network;
+  final NetworkData network;
   final VoidCallback? onTap;
 
   const NetworkCard({
@@ -71,12 +71,18 @@ class NetworkCard extends StatelessWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    '${network.runningMachines} / ${network.totalMachines} Machines running',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  FutureBuilder<List<MachineData>>(
+                    future: AppDatabase.instance.getMachinesForNetwork(network.id),
+                    builder: (context, snapshot) {
+                      final totalMachines = snapshot.data?.length ?? 0;
+                      return Text(
+                        '${network.runningMachines} / $totalMachines Machines running',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../models/network.dart';
+import 'package:sandman/database/app_database.dart';
 import '../models/machine.dart';
+import 'package:drift/drift.dart' as drift;
 import '../utils/validators.dart';
 
 class CreateNetworkScreen extends StatefulWidget {
@@ -18,8 +19,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   final _descController = TextEditingController();
   final _routerIpController = TextEditingController();
   final _routerPortController = TextEditingController();
+  final _appDatabase = AppDatabase.instance;
   
-  final List<Machine> _machines = [];
+  final List<MachineCompanion> _machines = [];
 
   @override
   void initState() {
@@ -63,19 +65,28 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
     );
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final newNetwork = Network(
+       final networkCompanion = NetworkCompanion.insert(
         name: _nameController.text,
         description: _descController.text,
-        machines: _machines,
         routerIp: _routerIpController.text,
         routerPort: int.parse(_routerPortController.text),
-        runningMachines: 0,
-        isRouterRunning: false,
       );
+
+      final networkId = await _appDatabase.insertNetwork(networkCompanion);
       
-      Navigator.of(context).pop(newNetwork);
+      for (final machine in _machines) {
+        // Create a copy with the actual networkId
+        final machineWithNetwork = machine.copyWith(
+          networkId: drift.Value(networkId),
+        );
+        await _appDatabase.insertMachine(machineWithNetwork);
+      }
+      
+      if (mounted) {
+        Navigator.of(context).pop(true);
+      }
     }
   }
 
@@ -189,8 +200,8 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       leading: const Icon(Icons.computer),
-                      title: Text(machine.name),
-                      subtitle: Text('${machine.tailscaleIp} • ${machine.macAddress}'),
+                      title: Text(machine.name.value),
+                      subtitle: Text('${machine.tailscaleIp.value} • ${machine.macAddress.value}'),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
@@ -222,7 +233,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
 }
 
 class _AddMachineDialog extends StatefulWidget {
-  final Function(Machine) onAdd;
+  final Function(MachineCompanion) onAdd;
 
   const _AddMachineDialog({required this.onAdd});
 
@@ -298,11 +309,12 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
         ElevatedButton(
           onPressed: _isFormValid ? () {
             if (_formKey.currentState!.validate()) {
-              widget.onAdd(Machine(
+              widget.onAdd(MachineCompanion.insert(
+                networkId: 0, // Placeholder, will be replaced in _submitForm
                 name: _nameController.text,
                 tailscaleIp: _tailscaleIpController.text,
                 macAddress: _macAddressController.text,
-                status: MachineStatus.offline,
+                status: const drift.Value(MachineStatus.offline),
               ));
               Navigator.of(context).pop();
             }

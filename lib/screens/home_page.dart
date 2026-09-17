@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/network.dart';
-import '../models/machine.dart';
+import '../database/app_database.dart';
 import 'network_list_view.dart';
 import 'create_network_screen.dart';
-import 'package:sandman/helpers/database/database_helper.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -23,47 +21,27 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool _isMenuOpen = false;
+  final _appDatabase = AppDatabase.instance;
   
-  final List<Network> _networks = [
-    Network(
-      name: 'Production Environment',
-      description: 'Main production network handling all user traffic and backend services.',
-      machines: [
-        Machine(
-            name: 'Web Server', 
-            tailscaleIp: '100.100.100.1', 
-            macAddress: 'AA:BB:CC:DD:EE:01',
-            status: MachineStatus.online,
-        ),
-        Machine(
-            name: 'Database', 
-            tailscaleIp: '100.100.100.2', 
-            macAddress: 'AA:BB:CC:DD:EE:02',
-            status: MachineStatus.online,
-        ),
-      ],
-      routerIp: '192.168.1.1',
-      routerPort: 9,
-      runningMachines: 2,
-      isRouterRunning: true,
-    ),
-    Network(
-      name: 'Testing Sandbox',
-      description: 'Isolated network for testing new features and staging deployments.',
-      machines: [
-        Machine(
-            name: 'Test Server', 
-            tailscaleIp: '100.100.100.3', 
-            macAddress: 'AA:BB:CC:DD:EE:03',
-            status: MachineStatus.offline,
-        ),
-      ],
-      routerIp: '192.168.2.1',
-      routerPort: 9,
-      runningMachines: 0,
-      isRouterRunning: false,
-    ),
-  ];
+  List<NetworkData> _networks = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNetworks();
+  }
+
+  Future<void> _loadNetworks() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final networks = await _appDatabase.getAllNetworks();
+    setState(() {
+      _networks = networks;
+      _isLoading = false;
+    });
+  }
 
   void _toggleSettingsMenu() {
     setState(() {
@@ -72,16 +50,14 @@ class _HomePageState extends State<HomePage> {
   }
   
   Future<void> _createNewNetwork() async {
-    final newNetwork = await Navigator.of(context).push<Network>(
+    final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const CreateNetworkScreen(),
       ),
     );
 
-    if (newNetwork != null) {
-      setState(() {
-        _networks.add(newNetwork);
-      });
+    if (result == true) {
+      _loadNetworks();
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -113,10 +89,13 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Stack(
         children: [
-          NetworkListView(
-            networks: _networks,
-            onCreateNetwork: _createNewNetwork,
-          ),
+          if (_isLoading)
+            const Center(child: CircularProgressIndicator())
+          else
+            NetworkListView(
+              networks: _networks,
+              onCreateNetwork: _createNewNetwork,
+            ),
           
           if (_isMenuOpen)
             GestureDetector(
