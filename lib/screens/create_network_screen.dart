@@ -19,7 +19,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   final _descController = TextEditingController();
   final _routerIpController = TextEditingController();
   final _routerPortController = TextEditingController();
-  final _broadcastAddressController = TextEditingController(text: '255.255.255.255');
+  final _broadcastAddressController = TextEditingController(
+    text: '255.255.255.255',
+  );
   final _appDatabase = AppDatabase.instance;
 
   final List<MachineCompanion> _machines = [];
@@ -46,14 +48,17 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   }
 
   bool get _isFormValid {
-    if (Validators.validateRequired(_nameController.text, 'name') != null)
+    if (Validators.validateRequired(_nameController.text, 'name') != null) {
       return false;
+    }
     if (Validators.validateRequired(_descController.text, 'description') !=
-        null)
+        null) {
       return false;
+    }
     if (Validators.validateIp(_routerIpController.text) != null) return false;
-    if (Validators.validatePort(_routerPortController.text) != null)
+    if (Validators.validatePort(_routerPortController.text) != null) {
       return false;
+    }
     return true;
   }
 
@@ -282,12 +287,15 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
 
   bool get _isFormValid {
     if (Validators.validateRequired(_nameController.text, 'machine name') !=
-        null)
+        null) {
       return false;
-    if (Validators.validateIp(_tailscaleIpController.text) != null)
+    }
+    if (Validators.validateIp(_tailscaleIpController.text) != null) {
       return false;
-    if (Validators.validateMac(_macAddressController.text) != null)
+    }
+    if (Validators.validateMac(_macAddressController.text) != null) {
       return false;
+    }
     return true;
   }
 
