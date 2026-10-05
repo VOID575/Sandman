@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sandman/database/app_database.dart';
-import '../database/dao/machine_dao.dart';
 import '../models/machine.dart';
 import 'package:drift/drift.dart' as drift;
 import '../utils/validators.dart';
@@ -20,6 +19,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   final _descController = TextEditingController();
   final _routerIpController = TextEditingController();
   final _routerPortController = TextEditingController();
+  final _broadcastAddressController = TextEditingController(text: '255.255.255.255');
   final _appDatabase = AppDatabase.instance;
 
   final List<MachineCompanion> _machines = [];
@@ -32,6 +32,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
     _descController.addListener(() => setState(() {}));
     _routerIpController.addListener(() => setState(() {}));
     _routerPortController.addListener(() => setState(() {}));
+    _broadcastAddressController.addListener(() => setState(() {}));
   }
 
   @override
@@ -40,6 +41,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
     _descController.dispose();
     _routerIpController.dispose();
     _routerPortController.dispose();
+    _broadcastAddressController.dispose();
     super.dispose();
   }
 
@@ -48,6 +50,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
     if (Validators.validateRequired(_descController.text, 'description') != null) return false;
     if (Validators.validateIp(_routerIpController.text) != null) return false;
     if (Validators.validatePort(_routerPortController.text) != null) return false;
+    if (Validators.validateIp(_broadcastAddressController.text) != null) return false;
     return true;
   }
 
@@ -73,6 +76,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
         description: _descController.text,
         routerIp: _routerIpController.text,
         routerPort: int.parse(_routerPortController.text),
+        broadcastAddress: drift.Value(_broadcastAddressController.text),
       );
 
       final networkId = await _appDatabase.networkDao.insertNetwork(networkCompanion);
@@ -159,6 +163,16 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _broadcastAddressController,
+              decoration: const InputDecoration(
+                labelText: 'Broadcast Address',
+                border: OutlineInputBorder(),
+                helperText: 'Usually 255.255.255.255',
+              ),
+              validator: Validators.validateIp,
             ),
             const SizedBox(height: 24),
             Row(
