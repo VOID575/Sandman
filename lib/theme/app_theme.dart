@@ -34,4 +34,5 @@ abstract class AppStatusColors {
   static const online = Color(0xFF10B981); // Green
   static const offline = Color(0xFF64748B); // Slate
   static const wakingUp = Color(0xFFF59E0B); // Amber
+  static const shuttingDown = Color(0xFFEF4444); // Red
 }

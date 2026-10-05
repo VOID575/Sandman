@@ -56,6 +56,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
       return false;
     }
     if (Validators.validateIp(_routerIpController.text) != null) return false;
+    if (Validators.validateIp(_broadcastAddressController.text) != null) {
+      return false;
+    }
     if (Validators.validatePort(_routerPortController.text) != null) {
       return false;
     }
@@ -84,7 +87,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
         description: _descController.text,
         routerIp: _routerIpController.text,
         routerPort: int.parse(_routerPortController.text),
-        broadcastAddress: _broadcastAddressController.text,
+        broadcastAddress: drift.Value(_broadcastAddressController.text),
       );
 
       final networkId = await _appDatabase.networkDao.insertNetwork(
@@ -175,6 +178,16 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _broadcastAddressController,
+              decoration: const InputDecoration(
+                labelText: 'Broadcast Address',
+                border: OutlineInputBorder(),
+                helperText: 'Usually 255.255.255.255',
+              ),
+              validator: Validators.validateIp,
             ),
             const SizedBox(height: 24),
             Row(

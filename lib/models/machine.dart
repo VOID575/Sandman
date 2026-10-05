@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:sandman/models/network.dart';
 
-enum MachineStatus { online, offline, wakingUp }
+enum MachineStatus { online, offline, wakingUp, shuttingDown }
 
 class Machine extends Table {
   IntColumn get id => integer().autoIncrement()();
