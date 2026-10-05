@@ -11,29 +11,52 @@ class MachineCard extends StatefulWidget {
   final MachineData machine;
   final NetworkData network;
 
-  const MachineCard({super.key, required this.machine, required this.network});
+  final WolManager? wolManager;
+  final AppDatabase? appDatabase;
+
+  const MachineCard({
+    super.key,
+    required this.machine,
+    required this.network,
+    this.wolManager,
+    this.appDatabase,
+  });
 
   @override
   State<MachineCard> createState() => _MachineCardState();
 }
 
 class _MachineCardState extends State<MachineCard> {
-  final WolManager _wolManager = WolManager();
+  late final WolManager _wolManager = widget.wolManager ?? WolManager();
+  late final AppDatabase _appDatabase =
+      widget.appDatabase ?? AppDatabase.instance;
+
+  late MachineData _currentMachine = widget.machine;
   bool _isLoading = false;
 
+  @override
+  void didUpdateWidget(MachineCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.machine != widget.machine) {
+      _currentMachine = widget.machine;
+    }
+  }
+
   Future<void> _handlePowerAction() async {
+    if (_isLoading) return;
+
     setState(() {
       _isLoading = true;
     });
 
     try {
       final payload = WolPayload(
-        widget.machine.macAddress,
+        _currentMachine.macAddress,
         widget.network.broadcastAddress,
         widget.network.routerIp,
       );
 
-      final isOffline = widget.machine.status == MachineStatus.offline;
+      final isOffline = _currentMachine.status == MachineStatus.offline;
 
       final response = isOffline
           ? await _wolManager.sendWolSignal(ApiConstants.http, payload)
@@ -56,8 +79,14 @@ class _MachineCardState extends State<MachineCard> {
             ? MachineStatus.wakingUp
             : MachineStatus.shuttingDown;
 
-        final updatedMachine = widget.machine.copyWith(status: newStatus);
-        await AppDatabase.instance.machineDao.updateMachine(updatedMachine);
+        final updatedMachine = _currentMachine.copyWith(status: newStatus);
+        await _appDatabase.machineDao.updateMachine(updatedMachine);
+
+        if (mounted) {
+          setState(() {
+            _currentMachine = updatedMachine;
+          });
+        }
       } else {
         // API Error
         ScaffoldMessenger.of(context).showSnackBar(
@@ -111,7 +140,7 @@ class _MachineCardState extends State<MachineCard> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          widget.machine.name,
+                          _currentMachine.name,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onSurface,
@@ -121,7 +150,7 @@ class _MachineCardState extends State<MachineCard> {
                     ],
                   ),
                 ),
-                MachineStatusBadge(status: widget.machine.status),
+                MachineStatusBadge(status: _currentMachine.status),
               ],
             ),
             const SizedBox(height: 16),
@@ -137,14 +166,14 @@ class _MachineCardState extends State<MachineCard> {
                         context,
                         icon: Icons.network_check,
                         label: 'IP Address',
-                        value: widget.machine.tailscaleIp,
+                        value: _currentMachine.tailscaleIp,
                       ),
                       const SizedBox(height: 8),
                       _buildInfoRow(
                         context,
                         icon: Icons.memory,
                         label: 'MAC Address',
-                        value: widget.machine.macAddress,
+                        value: _currentMachine.macAddress,
                       ),
                     ],
                   ),
@@ -170,10 +199,10 @@ class _MachineCardState extends State<MachineCard> {
       );
     }
 
-    final isOffline = widget.machine.status == MachineStatus.offline;
+    final isOffline = _currentMachine.status == MachineStatus.offline;
     final isTransitioning =
-        widget.machine.status == MachineStatus.wakingUp ||
-        widget.machine.status == MachineStatus.shuttingDown;
+        _currentMachine.status == MachineStatus.wakingUp ||
+        _currentMachine.status == MachineStatus.shuttingDown;
 
     if (isTransitioning) {
       return Padding(
