@@ -18,4 +18,13 @@ class WolManager {
 
     return apiWolResponse;
   }
+
+  Future<ApiWolResponse> sendShutdownSignal(String httpProtocol, WolPayload wolPayload) async {
+    Uri url = Uri.parse('$httpProtocol${wolPayload.virtualIpv4}${ApiConstants.shutdownRoute}');
+
+    http.Response response = await http.post(url);
+
+    Map<String,String> body = jsonDecode(response.body) as Map<String,String>;
+    return ApiWolResponse(response.statusCode, body['message']!);
+  }
 }
