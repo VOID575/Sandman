@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
 import '../database/app_database.dart';
 import '../widgets/status_badges.dart';
 import '../widgets/machine_card.dart';
@@ -40,6 +41,105 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
     await _loadMachines();
   }
 
+  Future<void> _showDeleteConfirmation(BuildContext context) async {
+    final theme = Theme.of(context);
+    bool isDeleting = false;
+    String enteredName = '';
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final isNameMatching = enteredName.trim() == widget.network.name;
+
+            return AlertDialog(
+              title: Text(
+                'Delete Network?',
+                style: TextStyle(
+                  color: theme.colorScheme.error,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Are you sure you want to delete this network? All associated machines will also be permanently removed. This action cannot be undone.',
+                  ),
+                  const SizedBox(height: 16),
+                  Text('Type "${widget.network.name}" to confirm:'),
+                  const SizedBox(height: 8),
+                  TextField(
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Network Name',
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        enteredName = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isDeleting
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.error,
+                    foregroundColor: theme.colorScheme.onError,
+                  ),
+                  onPressed: (!isNameMatching || isDeleting)
+                      ? null
+                      : () async {
+                          setState(() {
+                            isDeleting = true;
+                          });
+                          await _appDatabase.networkDao.deleteNetwork(
+                            widget.network.id,
+                          );
+                          if (context.mounted) {
+                            Navigator.of(context).pop(); // Close dialog
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Network \'${widget.network.name}\' successfully deleted.',
+                                ),
+                              ),
+                            );
+                            Navigator.of(
+                              context,
+                            ).pop(true); // Return to home page with true
+                          }
+                        },
+                  child: isDeleting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Delete'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -49,6 +149,14 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
         title: Text(widget.network.name),
         backgroundColor: theme.colorScheme.surface,
         elevation: 1,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            color: theme.colorScheme.error,
+            tooltip: 'Delete Network',
+            onPressed: () => _showDeleteConfirmation(context),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refreshMachines,

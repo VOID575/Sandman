@@ -95,6 +95,7 @@ class _HomePageState extends State<HomePage> {
             NetworkListView(
               networks: _networks,
               onCreateNetwork: _createNewNetwork,
+              onRefresh: _loadNetworks,
             ),
 
           if (_isMenuOpen)

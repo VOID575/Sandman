@@ -6,11 +6,13 @@ import 'network_details_screen.dart';
 class NetworkListView extends StatelessWidget {
   final List<NetworkData> networks;
   final VoidCallback onCreateNetwork;
+  final VoidCallback onRefresh;
 
   const NetworkListView({
     super.key,
     required this.networks,
     required this.onCreateNetwork,
+    required this.onRefresh,
   });
 
   @override
