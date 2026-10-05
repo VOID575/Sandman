@@ -14,7 +14,7 @@ class CreateNetworkScreen extends StatefulWidget {
 
 class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
   final _routerIpController = TextEditingController();
@@ -43,10 +43,14 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   }
 
   bool get _isFormValid {
-    if (Validators.validateRequired(_nameController.text, 'name') != null) return false;
-    if (Validators.validateRequired(_descController.text, 'description') != null) return false;
+    if (Validators.validateRequired(_nameController.text, 'name') != null)
+      return false;
+    if (Validators.validateRequired(_descController.text, 'description') !=
+        null)
+      return false;
     if (Validators.validateIp(_routerIpController.text) != null) return false;
-    if (Validators.validatePort(_routerPortController.text) != null) return false;
+    if (Validators.validatePort(_routerPortController.text) != null)
+      return false;
     return true;
   }
 
@@ -67,15 +71,17 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-       final networkCompanion = NetworkCompanion.insert(
+      final networkCompanion = NetworkCompanion.insert(
         name: _nameController.text,
         description: _descController.text,
         routerIp: _routerIpController.text,
         routerPort: int.parse(_routerPortController.text),
       );
 
-      final networkId = await _appDatabase.networkDao.insertNetwork(networkCompanion);
-      
+      final networkId = await _appDatabase.networkDao.insertNetwork(
+        networkCompanion,
+      );
+
       for (final machine in _machines) {
         // Create a copy with the actual networkId
         final machineWithNetwork = machine.copyWith(
@@ -83,7 +89,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
         );
         await _appDatabase.machineDao.insertMachine(machineWithNetwork);
       }
-      
+
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -110,7 +116,8 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
                 labelText: 'Network Name',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) => Validators.validateRequired(value, 'network name'),
+              validator: (value) =>
+                  Validators.validateRequired(value, 'network name'),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -120,14 +127,15 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
-              validator: (value) => Validators.validateRequired(value, 'description'),
+              validator: (value) =>
+                  Validators.validateRequired(value, 'description'),
             ),
             const SizedBox(height: 24),
             Text(
               'Router Configuration',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Row(
@@ -201,7 +209,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
                     child: ListTile(
                       leading: const Icon(Icons.computer),
                       title: Text(machine.name.value),
-                      subtitle: Text('${machine.tailscaleIp.value} • ${machine.macAddress.value}'),
+                      subtitle: Text(
+                        '${machine.tailscaleIp.value} • ${machine.macAddress.value}',
+                      ),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
@@ -220,7 +230,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Theme.of(context).colorScheme.surface,
-                disabledBackgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                disabledBackgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.3),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: const Text('Add the network'),
@@ -243,7 +255,7 @@ class _AddMachineDialog extends StatefulWidget {
 
 class _AddMachineDialogState extends State<_AddMachineDialog> {
   final _formKey = GlobalKey<FormState>();
-  
+
   final _nameController = TextEditingController();
   final _tailscaleIpController = TextEditingController();
   final _macAddressController = TextEditingController();
@@ -265,9 +277,13 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
   }
 
   bool get _isFormValid {
-    if (Validators.validateRequired(_nameController.text, 'machine name') != null) return false;
-    if (Validators.validateIp(_tailscaleIpController.text) != null) return false;
-    if (Validators.validateMac(_macAddressController.text) != null) return false;
+    if (Validators.validateRequired(_nameController.text, 'machine name') !=
+        null)
+      return false;
+    if (Validators.validateIp(_tailscaleIpController.text) != null)
+      return false;
+    if (Validators.validateMac(_macAddressController.text) != null)
+      return false;
     return true;
   }
 
@@ -285,7 +301,8 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Machine Name'),
-                validator: (value) => Validators.validateRequired(value, 'machine name'),
+                validator: (value) =>
+                    Validators.validateRequired(value, 'machine name'),
               ),
               TextFormField(
                 controller: _tailscaleIpController,
@@ -307,18 +324,23 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: _isFormValid ? () {
-            if (_formKey.currentState!.validate()) {
-              widget.onAdd(MachineCompanion.insert(
-                networkId: 0, // Placeholder, will be replaced in _submitForm
-                name: _nameController.text,
-                tailscaleIp: _tailscaleIpController.text,
-                macAddress: _macAddressController.text,
-                status: const drift.Value(MachineStatus.offline),
-              ));
-              Navigator.of(context).pop();
-            }
-          } : null,
+          onPressed: _isFormValid
+              ? () {
+                  if (_formKey.currentState!.validate()) {
+                    widget.onAdd(
+                      MachineCompanion.insert(
+                        networkId:
+                            0, // Placeholder, will be replaced in _submitForm
+                        name: _nameController.text,
+                        tailscaleIp: _tailscaleIpController.text,
+                        macAddress: _macAddressController.text,
+                        status: const drift.Value(MachineStatus.offline),
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  }
+                }
+              : null,
           child: const Text('Add'),
         ),
       ],

@@ -6,10 +6,7 @@ import '../widgets/machine_card.dart';
 class NetworkDetailsScreen extends StatefulWidget {
   final NetworkData network;
 
-  const NetworkDetailsScreen({
-    super.key,
-    required this.network,
-  });
+  const NetworkDetailsScreen({super.key, required this.network});
 
   @override
   State<NetworkDetailsScreen> createState() => _NetworkDetailsScreenState();
@@ -27,13 +24,15 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
   }
 
   Future<void> _loadMachines() async {
-    final machines = await _appDatabase.machineDao.getMachinesForNetwork(widget.network.id);
+    final machines = await _appDatabase.machineDao.getMachinesForNetwork(
+      widget.network.id,
+    );
     setState(() {
       _machines = machines;
       _isLoading = false;
     });
   }
-  
+
   Future<void> _refreshMachines() async {
     // In a real app, you would make an API call here to fetch the latest statuses.
     // For now, we'll just reload from the database.
@@ -71,7 +70,9 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                             color: theme.colorScheme.onSurface,
                           ),
                         ),
-                        RouterStatusBadge(isRunning: widget.network.isRouterRunning),
+                        RouterStatusBadge(
+                          isRunning: widget.network.isRouterRunning,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -121,18 +122,15 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
               )
             else
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final machine = _machines[index];
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        bottom: index == _machines.length - 1 ? 24.0 : 0,
-                      ),
-                      child: MachineCard(machine: machine),
-                    );
-                  },
-                  childCount: _machines.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final machine = _machines[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == _machines.length - 1 ? 24.0 : 0,
+                    ),
+                    child: MachineCard(machine: machine),
+                  );
+                }, childCount: _machines.length),
               ),
           ],
         ),
