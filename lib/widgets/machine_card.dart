@@ -10,16 +10,13 @@ class MachineCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: theme.colorScheme.outline,
-          width: 1,
-        ),
+        side: BorderSide(color: theme.colorScheme.outline, width: 1),
       ),
       color: theme.colorScheme.surface,
       child: Padding(
@@ -33,10 +30,7 @@ class MachineCard extends StatelessWidget {
                 Expanded(
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.computer,
-                        color: theme.colorScheme.primary,
-                      ),
+                      Icon(Icons.computer, color: theme.colorScheme.primary),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -57,16 +51,16 @@ class MachineCard extends StatelessWidget {
             const Divider(height: 1),
             const SizedBox(height: 16),
             _buildInfoRow(
-              context, 
-              icon: Icons.network_check, 
-              label: 'IP Address', 
+              context,
+              icon: Icons.network_check,
+              label: 'IP Address',
               value: machine.tailscaleIp,
             ),
             const SizedBox(height: 8),
             _buildInfoRow(
-              context, 
-              icon: Icons.memory, 
-              label: 'MAC Address', 
+              context,
+              icon: Icons.memory,
+              label: 'MAC Address',
               value: machine.macAddress,
             ),
           ],
@@ -75,15 +69,16 @@ class MachineCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, {required IconData icon, required String label, required String value}) {
+  Widget _buildInfoRow(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
+        Icon(icon, size: 16, color: theme.colorScheme.onSurfaceVariant),
         const SizedBox(width: 8),
         Text(
           '$label: ',

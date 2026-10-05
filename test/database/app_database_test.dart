@@ -16,92 +16,114 @@ void main() {
     await database.close();
   });
 
-  test('insertNetwork should be successful when no fields is missing', () async {
-    // Arrange
-    final networkCompanion = NetworkCompanion.insert(
-      name: 'Test Network',
-      description: 'A network for testing',
-      routerIp: '192.168.1.1',
-      routerPort: 8080,
-    );
+  test(
+    'insertNetwork should be successful when no fields is missing',
+    () async {
+      // Arrange
+      final networkCompanion = NetworkCompanion.insert(
+        name: 'Test Network',
+        description: 'A network for testing',
+        routerIp: '192.168.1.1',
+        routerPort: 8080,
+        broadcastAddress: '255.255.255.255',
+      );
 
-    // Act
-    final id = await database.networkDao.insertNetwork(networkCompanion);
+      // Act
+      final id = await database.networkDao.insertNetwork(networkCompanion);
 
-    // Assert
-    final allNetworks = await database.networkDao.getAllNetworks();
-    
-    expect(allNetworks.length, 1);
-    expect(allNetworks.first.id, id);
-    expect(allNetworks.first.name, 'Test Network');
-    expect(allNetworks.first.description, 'A network for testing');
-    expect(allNetworks.first.routerIp, '192.168.1.1');
-    expect(allNetworks.first.routerPort, 8080);
-    expect(allNetworks.first.runningMachines, 0); // Default value
-    expect(allNetworks.first.isRouterRunning, false); // Default value
-  });
+      // Assert
+      final allNetworks = await database.networkDao.getAllNetworks();
 
-  test('insertMachine should be successful when no fields is missing', () async {
-    // Arrange
-    final networkId = await database.networkDao.insertNetwork(NetworkCompanion.insert(
-      name: 'Network for Machine',
-      description: 'Desc',
-      routerIp: '10.0.0.1',
-      routerPort: 9,
-    ));
+      expect(allNetworks.length, 1);
+      expect(allNetworks.first.id, id);
+      expect(allNetworks.first.name, 'Test Network');
+      expect(allNetworks.first.description, 'A network for testing');
+      expect(allNetworks.first.routerIp, '192.168.1.1');
+      expect(allNetworks.first.routerPort, 8080);
+      expect(allNetworks.first.runningMachines, 0); // Default value
+      expect(allNetworks.first.isRouterRunning, false); // Default value
+    },
+  );
 
-    final machineCompanion = MachineCompanion.insert(
-      networkId: networkId,
-      name: 'Test Machine',
-      tailscaleIp: '100.100.100.100',
-      macAddress: 'AA:BB:CC:DD:EE:FF',
-      status: const Value(MachineStatus.online),
-    );
+  test(
+    'insertMachine should be successful when no fields is missing',
+    () async {
+      // Arrange
+      final networkId = await database.networkDao.insertNetwork(
+        NetworkCompanion.insert(
+          name: 'Network for Machine',
+          description: 'Desc',
+          routerIp: '10.0.0.1',
+          routerPort: 9,
+          broadcastAddress: '255.255.255.255',
+        ),
+      );
 
-    // Act
-    final machineId = await database.machineDao.insertMachine(machineCompanion);
+      final machineCompanion = MachineCompanion.insert(
+        networkId: networkId,
+        name: 'Test Machine',
+        tailscaleIp: '100.100.100.100',
+        macAddress: 'AA:BB:CC:DD:EE:FF',
+        status: const Value(MachineStatus.online),
+      );
 
-    // Assert
-    final machines = await database.machineDao.getAllMachines();
+      // Act
+      final machineId = await database.machineDao.insertMachine(
+        machineCompanion,
+      );
 
-    expect(machines.length, 1);
-    expect(machines.first.id, machineId);
-    expect(machines.first.networkId, networkId);
-    expect(machines.first.name, 'Test Machine');
-    expect(machines.first.tailscaleIp, '100.100.100.100');
-    expect(machines.first.macAddress, 'AA:BB:CC:DD:EE:FF');
-    expect(machines.first.status, MachineStatus.online);
-  });
+      // Assert
+      final machines = await database.machineDao.getAllMachines();
 
-  test('getMachineNetwork should be successful when a machine has the network id given in parameters ', () async {
-    // Arrange
-    final networkId = await database.networkDao.insertNetwork(NetworkCompanion.insert(
-      name: 'Network for Machine',
-      description: 'Desc',
-      routerIp: '10.0.0.1',
-      routerPort: 9,
-    ));
+      expect(machines.length, 1);
+      expect(machines.first.id, machineId);
+      expect(machines.first.networkId, networkId);
+      expect(machines.first.name, 'Test Machine');
+      expect(machines.first.tailscaleIp, '100.100.100.100');
+      expect(machines.first.macAddress, 'AA:BB:CC:DD:EE:FF');
+      expect(machines.first.status, MachineStatus.online);
+    },
+  );
 
-    final machineCompanion = MachineCompanion.insert(
-      networkId: networkId,
-      name: 'Test Machine',
-      tailscaleIp: '100.100.100.100',
-      macAddress: 'AA:BB:CC:DD:EE:FF',
-      status: const Value(MachineStatus.online),
-    );
+  test(
+    'getMachineNetwork should be successful when a machine has the network id given in parameters ',
+    () async {
+      // Arrange
+      final networkId = await database.networkDao.insertNetwork(
+        NetworkCompanion.insert(
+          name: 'Network for Machine',
+          description: 'Desc',
+          routerIp: '10.0.0.1',
+          routerPort: 9,
+          broadcastAddress: '255.255.255.255',
+        ),
+      );
 
-    // Act
-    final machineId = await database.machineDao.insertMachine(machineCompanion);
+      final machineCompanion = MachineCompanion.insert(
+        networkId: networkId,
+        name: 'Test Machine',
+        tailscaleIp: '100.100.100.100',
+        macAddress: 'AA:BB:CC:DD:EE:FF',
+        status: const Value(MachineStatus.online),
+      );
 
-    // Assert
-    final machines = await database.machineDao.getMachinesForNetwork(networkId);
+      // Act
+      final machineId = await database.machineDao.insertMachine(
+        machineCompanion,
+      );
 
-    expect(machines.length, 1);
-    expect(machines.first.id, machineId);
-    expect(machines.first.networkId, networkId);
-    expect(machines.first.name, 'Test Machine');
-    expect(machines.first.tailscaleIp, '100.100.100.100');
-    expect(machines.first.macAddress, 'AA:BB:CC:DD:EE:FF');
-    expect(machines.first.status, MachineStatus.online);
-  });
+      // Assert
+      final machines = await database.machineDao.getMachinesForNetwork(
+        networkId,
+      );
+
+      expect(machines.length, 1);
+      expect(machines.first.id, machineId);
+      expect(machines.first.networkId, networkId);
+      expect(machines.first.name, 'Test Machine');
+      expect(machines.first.tailscaleIp, '100.100.100.100');
+      expect(machines.first.macAddress, 'AA:BB:CC:DD:EE:FF');
+      expect(machines.first.status, MachineStatus.online);
+    },
+  );
 }
