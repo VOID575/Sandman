@@ -237,9 +237,84 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                     padding: EdgeInsets.only(
                       bottom: index == _machines.length - 1 ? 24.0 : 0,
                     ),
-                    child: MachineCard(
-                      machine: machine,
-                      network: widget.network,
+                    child: Dismissible(
+                      key: ValueKey(machine.id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 20.0),
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.error,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.delete,
+                          color: theme.colorScheme.onError,
+                          size: 32,
+                        ),
+                      ),
+                      confirmDismiss: (direction) async {
+                        return await showDialog<bool>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Delete Machine?'),
+                              content: Text(
+                                  "Are you sure you want to remove '${machine.name}' from this network?"),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: theme.colorScheme.error,
+                                  ),
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      onDismissed: (direction) async {
+                        // 1. Delete from UI
+                        setState(() {
+                          _machines.removeAt(index);
+                        });
+
+                        // 2. Delete from Database
+                        await _appDatabase.machineDao.deleteMachine(machine.toCompanion(false));
+
+                        // 3. Show feedback with Undo action
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).clearSnackBars();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Machine '${machine.name}' deleted."),
+                              duration: const Duration(seconds: 4),
+                              action: SnackBarAction(
+                                label: 'Undo',
+                                onPressed: () async {
+                                  // Restore in DB
+                                  await _appDatabase.machineDao.insertMachine(machine.toCompanion(false).copyWith(
+                                    id: const drift.Value.absent(), // ensure it generates a new PK or use the same if safe
+                                  ));
+                                  
+                                  // We reload the network to place it back safely
+                                  await _loadMachines();
+                                },
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: MachineCard(
+                        machine: machine,
+                        network: widget.network,
+                      ),
                     ),
                   );
                 }, childCount: _machines.length),

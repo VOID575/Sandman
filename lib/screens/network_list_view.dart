@@ -77,12 +77,15 @@ class NetworkListView extends StatelessWidget {
         final network = networks[index];
         return NetworkCard(
           network: network,
-          onTap: () {
-            Navigator.of(context).push(
+          onTap: () async {
+            final result = await Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => NetworkDetailsScreen(network: network),
               ),
             );
+            if (result == true) {
+              onRefresh();
+            }
           },
         );
       },
