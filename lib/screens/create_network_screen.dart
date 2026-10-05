@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sandman/database/app_database.dart';
-import '../database/dao/machine_dao.dart';
 import '../models/machine.dart';
 import 'package:drift/drift.dart' as drift;
 import '../utils/validators.dart';
