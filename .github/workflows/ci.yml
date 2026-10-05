@@ -1,0 +1,48 @@
+name: CI
+
+on: [push]
+
+jobs:
+  app-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate drift files
+        run: dart run build_runner build
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze code (Linting)
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+  app-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: |
+          flutter pub get
+
+      - name: Generate drift files
+        run: dart run build_runner build
+
+      - name: Run unit and widget tests
+        run: flutter test

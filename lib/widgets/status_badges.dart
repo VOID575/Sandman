@@ -11,7 +11,7 @@ class RouterStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final color = isRunning ? AppStatusColors.online : AppStatusColors.offline;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -25,10 +25,7 @@ class RouterStatusBadge extends StatelessWidget {
           Container(
             width: 8,
             height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
           Text(
@@ -52,10 +49,10 @@ class MachineStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     late final Color color;
     late final String label;
-    
+
     switch (status) {
       case MachineStatus.online:
         color = AppStatusColors.online;
@@ -74,7 +71,7 @@ class MachineStatusBadge extends StatelessWidget {
         label = 'Shutting Down';
         break;
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -92,7 +89,9 @@ class MachineStatusBadge extends StatelessWidget {
               color: color,
               shape: BoxShape.circle,
               boxShadow: [
-                if (status == MachineStatus.wakingUp || status == MachineStatus.shuttingDown || status == MachineStatus.online)
+                if (status == MachineStatus.wakingUp ||
+                    status == MachineStatus.shuttingDown ||
+                    status == MachineStatus.online)
                   BoxShadow(
                     color: color.withValues(alpha: 0.4),
                     blurRadius: 4,

@@ -11,11 +11,7 @@ class MachineCard extends StatefulWidget {
   final MachineData machine;
   final NetworkData network;
 
-  const MachineCard({
-    super.key, 
-    required this.machine,
-    required this.network,
-  });
+  const MachineCard({super.key, required this.machine, required this.network});
 
   @override
   State<MachineCard> createState() => _MachineCardState();
@@ -38,25 +34,30 @@ class _MachineCardState extends State<MachineCard> {
       );
 
       final isOffline = widget.machine.status == MachineStatus.offline;
-      
-      final response = isOffline 
-        ? await _wolManager.sendWolSignal(ApiConstants.http, payload)
-        : await _wolManager.sendShutdownSignal(ApiConstants.http, payload);
+
+      final response = isOffline
+          ? await _wolManager.sendWolSignal(ApiConstants.http, payload)
+          : await _wolManager.sendShutdownSignal(ApiConstants.http, payload);
 
       if (!mounted) return;
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         // Success
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isOffline ? 'Wake signal sent...' : 'Shutdown signal sent...')),
+          SnackBar(
+            content: Text(
+              isOffline ? 'Wake signal sent...' : 'Shutdown signal sent...',
+            ),
+          ),
         );
 
         // Update local DB status (wakingUp or shuttingDown)
-        final newStatus = isOffline ? MachineStatus.wakingUp : MachineStatus.shuttingDown;
-        
+        final newStatus = isOffline
+            ? MachineStatus.wakingUp
+            : MachineStatus.shuttingDown;
+
         final updatedMachine = widget.machine.copyWith(status: newStatus);
         await AppDatabase.instance.machineDao.updateMachine(updatedMachine);
-
       } else {
         // API Error
         ScaffoldMessenger.of(context).showSnackBar(
@@ -86,16 +87,13 @@ class _MachineCardState extends State<MachineCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: theme.colorScheme.outline,
-          width: 1,
-        ),
+        side: BorderSide(color: theme.colorScheme.outline, width: 1),
       ),
       color: theme.colorScheme.surface,
       child: Padding(
@@ -109,10 +107,7 @@ class _MachineCardState extends State<MachineCard> {
                 Expanded(
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.computer,
-                        color: theme.colorScheme.primary,
-                      ),
+                      Icon(Icons.computer, color: theme.colorScheme.primary),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -139,16 +134,16 @@ class _MachineCardState extends State<MachineCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildInfoRow(
-                        context, 
-                        icon: Icons.network_check, 
-                        label: 'IP Address', 
+                        context,
+                        icon: Icons.network_check,
+                        label: 'IP Address',
                         value: widget.machine.tailscaleIp,
                       ),
                       const SizedBox(height: 8),
                       _buildInfoRow(
-                        context, 
-                        icon: Icons.memory, 
-                        label: 'MAC Address', 
+                        context,
+                        icon: Icons.memory,
+                        label: 'MAC Address',
                         value: widget.machine.macAddress,
                       ),
                     ],
@@ -176,17 +171,18 @@ class _MachineCardState extends State<MachineCard> {
     }
 
     final isOffline = widget.machine.status == MachineStatus.offline;
-    final isTransitioning = widget.machine.status == MachineStatus.wakingUp || 
-                            widget.machine.status == MachineStatus.shuttingDown;
+    final isTransitioning =
+        widget.machine.status == MachineStatus.wakingUp ||
+        widget.machine.status == MachineStatus.shuttingDown;
 
     if (isTransitioning) {
-       return Padding(
+      return Padding(
         padding: const EdgeInsets.all(12.0),
         child: SizedBox(
           width: 24,
           height: 24,
           child: CircularProgressIndicator(
-            strokeWidth: 2, 
+            strokeWidth: 2,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
@@ -197,21 +193,24 @@ class _MachineCardState extends State<MachineCard> {
       onPressed: _handlePowerAction,
       icon: Icon(
         Icons.power_settings_new,
-        color: isOffline ? AppStatusColors.online : AppStatusColors.shuttingDown,
+        color: isOffline
+            ? AppStatusColors.online
+            : AppStatusColors.shuttingDown,
       ),
       tooltip: isOffline ? 'Wake up' : 'Shut down',
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, {required IconData icon, required String label, required String value}) {
+  Widget _buildInfoRow(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
+        Icon(icon, size: 16, color: theme.colorScheme.onSurfaceVariant),
         const SizedBox(width: 8),
         Text(
           '$label: ',

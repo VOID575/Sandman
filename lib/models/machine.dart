@@ -11,5 +11,6 @@ class Machine extends Table {
   TextColumn get tailscaleIp => text()();
   TextColumn get macAddress => text()();
 
-  IntColumn get status => intEnum<MachineStatus>().withDefault(const Constant(1))();
+  IntColumn get status =>
+      intEnum<MachineStatus>().withDefault(const Constant(1))();
 }

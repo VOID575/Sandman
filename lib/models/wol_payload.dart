@@ -3,5 +3,5 @@ class WolPayload {
   String broadcastAddress;
   String virtualIpv4;
 
-  WolPayload(this.macAdress,this.broadcastAddress,this.virtualIpv4);
+  WolPayload(this.macAdress, this.broadcastAddress, this.virtualIpv4);
 }

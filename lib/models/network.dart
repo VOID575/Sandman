@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
 // TODO : Add validators directly on the object, don't deleguate it to the front
-class Network extends Table{
+class Network extends Table {
   IntColumn get id => integer().autoIncrement()();
 
   TextColumn get name => text()();
@@ -11,5 +11,6 @@ class Network extends Table{
 
   IntColumn get routerPort => integer()();
   IntColumn get runningMachines => integer().withDefault(const Constant(0))();
-  BoolColumn get isRouterRunning => boolean().withDefault(const Constant(false))();
+  BoolColumn get isRouterRunning =>
+      boolean().withDefault(const Constant(false))();
 }

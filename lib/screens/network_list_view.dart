@@ -25,7 +25,9 @@ class NetworkListView extends StatelessWidget {
               Icon(
                 Icons.hub_outlined,
                 size: 80,
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.5),
               ),
               const SizedBox(height: 24),
               Text(
@@ -51,7 +53,10 @@ class NetworkListView extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.surface,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

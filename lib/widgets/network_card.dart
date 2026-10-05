@@ -6,28 +6,22 @@ class NetworkCard extends StatelessWidget {
   final NetworkData network;
   final VoidCallback? onTap;
 
-  const NetworkCard({
-    super.key, 
-    required this.network,
-    this.onTap,
-  });
+  const NetworkCard({super.key, required this.network, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: theme.colorScheme.outline,
-          width: 1,
-        ),
+        side: BorderSide(color: theme.colorScheme.outline, width: 1),
       ),
       color: theme.colorScheme.surface,
-      clipBehavior: Clip.antiAlias, // Ensures the InkWell splash stays inside the border
+      clipBehavior:
+          Clip.antiAlias, // Ensures the InkWell splash stays inside the border
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -72,7 +66,8 @@ class NetworkCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   FutureBuilder<List<MachineData>>(
-                    future: AppDatabase.instance.machineDao.getMachinesForNetwork(network.id),
+                    future: AppDatabase.instance.machineDao
+                        .getMachinesForNetwork(network.id),
                     builder: (context, snapshot) {
                       final totalMachines = snapshot.data?.length ?? 0;
                       return Text(
