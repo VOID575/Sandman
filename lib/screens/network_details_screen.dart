@@ -36,6 +36,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
   
   Future<void> _refreshMachines() async {
     // In a real app, you would make an API call here to fetch the latest statuses.
+    // TODO : Add an api route to get machine statuses
     // For now, we'll just reload from the database.
     await _loadMachines();
   }
@@ -128,7 +129,10 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                       padding: EdgeInsets.only(
                         bottom: index == _machines.length - 1 ? 24.0 : 0,
                       ),
-                      child: MachineCard(machine: machine),
+                      child: MachineCard(
+                        machine: machine,
+                        network: widget.network,
+                      ),
                     );
                   },
                   childCount: _machines.length,

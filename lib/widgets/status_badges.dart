@@ -69,6 +69,10 @@ class MachineStatusBadge extends StatelessWidget {
         color = AppStatusColors.wakingUp;
         label = 'Waking Up';
         break;
+      case MachineStatus.shuttingDown:
+        color = AppStatusColors.shuttingDown;
+        label = 'Shutting Down';
+        break;
     }
     
     return Container(
@@ -88,7 +92,7 @@ class MachineStatusBadge extends StatelessWidget {
               color: color,
               shape: BoxShape.circle,
               boxShadow: [
-                if (status == MachineStatus.wakingUp || status == MachineStatus.online)
+                if (status == MachineStatus.wakingUp || status == MachineStatus.shuttingDown || status == MachineStatus.online)
                   BoxShadow(
                     color: color.withValues(alpha: 0.4),
                     blurRadius: 4,
