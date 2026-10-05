@@ -19,6 +19,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   final _descController = TextEditingController();
   final _routerIpController = TextEditingController();
   final _routerPortController = TextEditingController();
+  final _broadcastAddressController = TextEditingController(text: '255.255.255.255');
   final _appDatabase = AppDatabase.instance;
 
   final List<MachineCompanion> _machines = [];
@@ -31,6 +32,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
     _descController.addListener(() => setState(() {}));
     _routerIpController.addListener(() => setState(() {}));
     _routerPortController.addListener(() => setState(() {}));
+    _broadcastAddressController.addListener(() => setState(() {}));
   }
 
   @override
@@ -39,6 +41,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
     _descController.dispose();
     _routerIpController.dispose();
     _routerPortController.dispose();
+    _broadcastAddressController.dispose();
     super.dispose();
   }
 
@@ -76,6 +79,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
         description: _descController.text,
         routerIp: _routerIpController.text,
         routerPort: int.parse(_routerPortController.text),
+        broadcastAddress: _broadcastAddressController.text,
       );
 
       final networkId = await _appDatabase.networkDao.insertNetwork(

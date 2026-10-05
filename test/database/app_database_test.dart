@@ -25,6 +25,7 @@ void main() {
         description: 'A network for testing',
         routerIp: '192.168.1.1',
         routerPort: 8080,
+        broadcastAddress: '255.255.255.255',
       );
 
       // Act
@@ -54,6 +55,7 @@ void main() {
           description: 'Desc',
           routerIp: '10.0.0.1',
           routerPort: 9,
+          broadcastAddress: '255.255.255.255',
         ),
       );
 
@@ -93,6 +95,7 @@ void main() {
           description: 'Desc',
           routerIp: '10.0.0.1',
           routerPort: 9,
+          broadcastAddress: '255.255.255.255',
         ),
       );
 
