@@ -20,7 +20,8 @@ class WolManager {
 
     http.Response response = await client.post(url);
 
-    Map<String, dynamic> body = jsonDecode(response.body) as Map<String, dynamic>;
+    Map<String, dynamic> body =
+        jsonDecode(response.body) as Map<String, dynamic>;
     ApiWolResponse apiWolResponse = ApiWolResponse(
       response.statusCode,
       body['message']!,
@@ -39,7 +40,8 @@ class WolManager {
 
     http.Response response = await client.post(url);
 
-    Map<String, dynamic> body = jsonDecode(response.body) as Map<String, dynamic>;
+    Map<String, dynamic> body =
+        jsonDecode(response.body) as Map<String, dynamic>;
     return ApiWolResponse(response.statusCode, body['message']!);
   }
 }

@@ -16,19 +16,24 @@ void main() {
       const String fakeProtocol = 'http://';
       const String fakeBroadcastAddress = '255.255.255.255';
 
-      final mockPayload = WolPayload(fakeMacAddress,fakeBroadcastAddress, fakeIp);
+      final mockPayload = WolPayload(
+        fakeMacAddress,
+        fakeBroadcastAddress,
+        fakeIp,
+      );
 
       final mockClient = MockClient((http.Request request) async {
         expect(request.method, 'POST');
         expect(
-            request.url.toString(),
-            '$fakeProtocol$fakeIp${ApiConstants.wakeonlanRoute}'
+          request.url.toString(),
+          '$fakeProtocol$fakeIp${ApiConstants.wakeonlanRoute}',
         );
 
-
-        return http.Response('{"message": "Magic packet sent successfully"}', 200);
+        return http.Response(
+          '{"message": "Magic packet sent successfully"}',
+          200,
+        );
       });
-
 
       final wolManager = WolManager(client: mockClient);
 
@@ -48,7 +53,11 @@ void main() {
       const String fakeBroadcastAddress = '255.255.255.255';
       const String fakeProtocol = 'http://';
 
-      final mockPayload = WolPayload(fakeMacAddress, fakeIp, fakeBroadcastAddress);
+      final mockPayload = WolPayload(
+        fakeMacAddress,
+        fakeIp,
+        fakeBroadcastAddress,
+      );
 
       final mockClient = MockClient((http.Request request) async {
         return http.Response('{"message": "Failed to reach machine"}', 500);
@@ -57,7 +66,10 @@ void main() {
       final wolManager = WolManager(client: mockClient);
 
       // Act
-      final result = await wolManager.sendShutdownSignal(fakeProtocol, mockPayload);
+      final result = await wolManager.sendShutdownSignal(
+        fakeProtocol,
+        mockPayload,
+      );
 
       // Assert
       expect(result.statusCode, 500);
