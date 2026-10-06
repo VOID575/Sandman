@@ -7,7 +7,6 @@
 
   <!-- Badges -->
   <a href="https://flutter.dev"><img src="https://img.shields.io/badge/Flutter-%2302569B.svg?style=flat&logo=Flutter&logoColor=white" alt="Flutter"></a>
-  <a href="https://go.dev/"><img src="https://img.shields.io/badge/Go-%2300ADD8.svg?style=flat&logo=go&logoColor=white" alt="Go"></a>
   <a href="https://tailscale.com/"><img src="https://img.shields.io/badge/Tailscale-%23374151.svg?style=flat&logo=tailscale&logoColor=white" alt="Tailscale"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
 </div>
