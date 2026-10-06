@@ -197,15 +197,22 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        color: theme.colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: theme.colorScheme.outlineVariant),
+                        border: Border.all(
+                          color: theme.colorScheme.outlineVariant,
+                        ),
                       ),
                       child: Column(
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.router, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                              Icon(
+                                Icons.router,
+                                size: 16,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 'IP: ${widget.network.routerIp}',
@@ -219,7 +226,11 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.memory, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                              Icon(
+                                Icons.memory,
+                                size: 16,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 'MAC: ${widget.network.routerMacAddress}',

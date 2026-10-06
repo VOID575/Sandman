@@ -59,7 +59,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
       return false;
     }
     if (Validators.validateIp(_routerIpController.text) != null) return false;
-    if (Validators.validateMac(_routerMacAddressController.text) != null) return false;
+    if (Validators.validateMac(_routerMacAddressController.text) != null) {
+      return false;
+    }
     if (Validators.validateIp(_broadcastAddressController.text) != null) {
       return false;
     }
