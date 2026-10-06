@@ -95,6 +95,7 @@ class _HomePageState extends State<HomePage> {
             NetworkListView(
               networks: _networks,
               onCreateNetwork: _createNewNetwork,
+              onRefresh: _loadNetworks,
             ),
 
           if (_isMenuOpen)
@@ -122,14 +123,16 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Settings',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
+                          Expanded(
+                            child: Text(
+                              'Settings',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                            ),
                           ),
                           IconButton(
                             icon: const Icon(Icons.close),
@@ -147,10 +150,12 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Dark mode',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
+                          Expanded(
+                            child: Text(
+                              'Dark mode',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                             ),
                           ),
                           Switch(

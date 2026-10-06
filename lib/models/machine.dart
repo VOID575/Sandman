@@ -5,7 +5,8 @@ enum MachineStatus { online, offline, wakingUp, shuttingDown }
 
 class Machine extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get networkId => integer().references(Network, #id)();
+  IntColumn get networkId =>
+      integer().references(Network, #id, onDelete: KeyAction.cascade)();
 
   TextColumn get name => text()();
   TextColumn get tailscaleIp => text()();

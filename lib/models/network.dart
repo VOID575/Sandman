@@ -7,6 +7,8 @@ class Network extends Table {
   TextColumn get name => text()();
   TextColumn get description => text()();
   TextColumn get routerIp => text()();
+  TextColumn get routerMacAddress =>
+      text().withDefault(const Constant('00:00:00:00:00:00'))();
   TextColumn get broadcastAddress =>
       text().withDefault(const Constant('255.255.255.255'))();
 

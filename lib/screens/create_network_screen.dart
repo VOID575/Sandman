@@ -18,6 +18,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
   final _routerIpController = TextEditingController();
+  final _routerMacAddressController = TextEditingController();
   final _routerPortController = TextEditingController();
   final _broadcastAddressController = TextEditingController(
     text: '255.255.255.255',
@@ -33,6 +34,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
     _nameController.addListener(() => setState(() {}));
     _descController.addListener(() => setState(() {}));
     _routerIpController.addListener(() => setState(() {}));
+    _routerMacAddressController.addListener(() => setState(() {}));
     _routerPortController.addListener(() => setState(() {}));
     _broadcastAddressController.addListener(() => setState(() {}));
   }
@@ -42,6 +44,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
     _nameController.dispose();
     _descController.dispose();
     _routerIpController.dispose();
+    _routerMacAddressController.dispose();
     _routerPortController.dispose();
     _broadcastAddressController.dispose();
     super.dispose();
@@ -56,6 +59,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
       return false;
     }
     if (Validators.validateIp(_routerIpController.text) != null) return false;
+    if (Validators.validateMac(_routerMacAddressController.text) != null) {
+      return false;
+    }
     if (Validators.validateIp(_broadcastAddressController.text) != null) {
       return false;
     }
@@ -86,6 +92,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
         name: _nameController.text,
         description: _descController.text,
         routerIp: _routerIpController.text,
+        routerMacAddress: drift.Value(_routerMacAddressController.text),
         routerPort: int.parse(_routerPortController.text),
         broadcastAddress: drift.Value(_broadcastAddressController.text),
       );
@@ -181,11 +188,19 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
             ),
             const SizedBox(height: 16),
             TextFormField(
+              controller: _routerMacAddressController,
+              decoration: const InputDecoration(
+                labelText: 'Router MAC Address',
+                border: OutlineInputBorder(),
+              ),
+              validator: Validators.validateMac,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
               controller: _broadcastAddressController,
               decoration: const InputDecoration(
                 labelText: 'Broadcast Address',
                 border: OutlineInputBorder(),
-                helperText: 'Usually 255.255.255.255',
               ),
               validator: Validators.validateIp,
             ),

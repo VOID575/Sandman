@@ -14,4 +14,8 @@ class NetworkDao extends DatabaseAccessor<AppDatabase> with _$NetworkDaoMixin {
   // Setters
   Future<int> insertNetwork(NetworkCompanion networkCompanion) =>
       into(network).insert(networkCompanion);
+
+  // "go" delete all rows matching the where clause
+  Future<int> deleteNetwork(int networkId) =>
+      (delete(network)..where((machine) => machine.id.equals(networkId))).go();
 }

@@ -3,6 +3,7 @@ import 'package:sandman/constants/db_contants.dart';
 import 'package:sandman/models/network.dart';
 import 'package:sandman/models/machine.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqlite3/sqlite3.dart';
@@ -34,11 +35,18 @@ class AppDatabase extends _$AppDatabase {
   // Create an isolated in-memory database to execute tests in it
   AppDatabase.forTesting(super.e);
 
-  // Create singleton to manipulate only one db connection
-  static final AppDatabase instance = AppDatabase._privateConstructor();
+  // Singleton instance
+  static AppDatabase _instance = AppDatabase._privateConstructor();
+
+  static AppDatabase get instance => _instance;
+
+  @visibleForTesting
+  static void setTestInstance(AppDatabase testDb) {
+    _instance = testDb;
+  }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -50,6 +58,12 @@ class AppDatabase extends _$AppDatabase {
         if (from < 2) {
           await m.addColumn(network, network.broadcastAddress);
         }
+        if (from < 3) {
+          await m.addColumn(network, network.routerMacAddress);
+        }
+      },
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA foreign_keys = ON;');
       },
     );
   }
