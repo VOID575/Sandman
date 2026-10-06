@@ -153,6 +153,18 @@ The backend service must be running on a machine that stays awake inside your lo
    flutter run
    ```
 
+### 3. Build & Export APK (Android)
+To install Sandman on your physical Android device as a standalone app, you can build a release APK:
+
+1. Run the following command in the root of your Flutter project:
+   ```bash
+   flutter build apk --release
+   ```
+2. Once the build finishes, you can find the generated APK file at:
+   `build/app/outputs/flutter-apk/app-release.apk`
+3. Transfer this file to your Android device (via USB, email, or cloud storage).
+4. On your device, open the file to install it. *(Note: You may need to allow "Install from unknown sources" in your Android settings).*
+
 ---
 
 ## Usage Guide
