@@ -1,5 +1,8 @@
 <div align="center">
-  <h1>💤 Sandman</h1>
+  <div style="display: flex; align-items: center;">
+    <img src="assets/images/icon.png" width="64"/>
+    <h1> Sandman</h1>
+  </div>
   <p><b>Your ultimate remote machine manager. Wake, monitor, and sleep your local networks safely from anywhere.</b></p>
 
   <!-- Badges -->
