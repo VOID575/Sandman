@@ -52,7 +52,9 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            final isNameMatching = enteredName.trim() == widget.network.name;
+            final expectedSentence =
+                'I want to delete the network ${widget.network.name}';
+            final isNameMatching = enteredName.trim() == expectedSentence;
 
             return AlertDialog(
               title: Text(
@@ -70,7 +72,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                     'Are you sure you want to delete this network? All associated machines will also be permanently removed. This action cannot be undone.',
                   ),
                   const SizedBox(height: 16),
-                  Text('Type "${widget.network.name}" to confirm:'),
+                  Text('Type "$expectedSentence" to confirm:'),
                   const SizedBox(height: 8),
                   TextField(
                     autofocus: true,
@@ -243,7 +245,10 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                       background: Container(
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.only(right: 20.0),
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.error,
                           borderRadius: BorderRadius.circular(12),
@@ -261,17 +266,20 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                             return AlertDialog(
                               title: const Text('Delete Machine?'),
                               content: Text(
-                                  "Are you sure you want to remove '${machine.name}' from this network?"),
+                                "Are you sure you want to remove '${machine.name}' from this network?",
+                              ),
                               actions: <Widget>[
                                 TextButton(
-                                  onPressed: () => Navigator.of(context).pop(false),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
                                   child: const Text('Cancel'),
                                 ),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     foregroundColor: theme.colorScheme.error,
                                   ),
-                                  onPressed: () => Navigator.of(context).pop(true),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
                                   child: const Text('Delete'),
                                 ),
                               ],
@@ -286,23 +294,31 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                         });
 
                         // 2. Delete from Database
-                        await _appDatabase.machineDao.deleteMachine(machine.toCompanion(false));
+                        await _appDatabase.machineDao.deleteMachine(
+                          machine.toCompanion(false),
+                        );
 
                         // 3. Show feedback with Undo action
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).clearSnackBars();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text("Machine '${machine.name}' deleted."),
+                              content: Text(
+                                "Machine '${machine.name}' deleted.",
+                              ),
                               duration: const Duration(seconds: 4),
                               action: SnackBarAction(
                                 label: 'Undo',
                                 onPressed: () async {
                                   // Restore in DB
-                                  await _appDatabase.machineDao.insertMachine(machine.toCompanion(false).copyWith(
-                                    id: const drift.Value.absent(), // ensure it generates a new PK or use the same if safe
-                                  ));
-                                  
+                                  await _appDatabase.machineDao.insertMachine(
+                                    machine
+                                        .toCompanion(false)
+                                        .copyWith(
+                                          id: const drift.Value.absent(), // ensure it generates a new PK or use the same if safe
+                                        ),
+                                  );
+
                                   // We reload the network to place it back safely
                                   await _loadMachines();
                                 },
