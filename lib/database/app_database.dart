@@ -46,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -58,9 +58,11 @@ class AppDatabase extends _$AppDatabase {
         if (from < 2) {
           await m.addColumn(network, network.broadcastAddress);
         }
+        if (from < 3) {
+          await m.addColumn(network, network.routerMacAddress);
+        }
       },
       beforeOpen: (details) async {
-        // Enforce foreign keys (like ON DELETE CASCADE) on SQLite
         await customStatement('PRAGMA foreign_keys = ON;');
       },
     );

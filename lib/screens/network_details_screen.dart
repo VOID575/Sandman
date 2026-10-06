@@ -194,6 +194,46 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: theme.colorScheme.outlineVariant),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.router, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                              const SizedBox(width: 8),
+                              Text(
+                                'IP: ${widget.network.routerIp}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.memory, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                              const SizedBox(width: 8),
+                              Text(
+                                'MAC: ${widget.network.routerMacAddress}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     const Divider(),
                     const SizedBox(height: 16),
                     Text(
