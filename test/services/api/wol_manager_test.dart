@@ -2,8 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-import 'package:sandman/models/api_wol_response.dart';
-import 'package:sandman/models/wol_payload.dart';
+import 'package:sandman/models/http_payloads/api_wol_response.dart';
+import 'package:sandman/models/http_payloads/wol_payload.dart';
+import 'package:sandman/models/http_payloads/shutdown_payload.dart';
 import 'package:sandman/constants/api_constants.dart';
 import 'package:sandman/api/wol_manager.dart';
 
@@ -15,6 +16,8 @@ void main() {
       const String fakeIp = '192.168.1.50';
       const String fakeProtocol = 'http://';
       const String fakeBroadcastAddress = '255.255.255.255';
+      const String fakeRouterIp = '100.100.100.1';
+      const int fakeRouterPort = 8080;
 
       final mockPayload = WolPayload(
         fakeMacAddress,
@@ -26,7 +29,7 @@ void main() {
         expect(request.method, 'POST');
         expect(
           request.url.toString(),
-          '$fakeProtocol$fakeIp${ApiConstants.wakeonlanRoute}',
+          '$fakeProtocol$fakeRouterIp:$fakeRouterPort${ApiConstants.wakeonlanRoute}',
         );
 
         return http.Response(
@@ -38,7 +41,12 @@ void main() {
       final wolManager = WolManager(client: mockClient);
 
       // Act
-      final result = await wolManager.sendWolSignal(fakeProtocol, mockPayload);
+      final result = await wolManager.sendWolSignal(
+        fakeProtocol,
+        fakeRouterIp,
+        fakeRouterPort,
+        mockPayload,
+      );
 
       // Assert
       expect(result, isA<ApiWolResponse>());
@@ -48,16 +56,12 @@ void main() {
 
     test('sendShutdownSignal should handle error response always', () async {
       // Arrange
-      const String fakeMacAddress = '192.168.1.50';
       const String fakeIp = '192.168.1.50';
-      const String fakeBroadcastAddress = '255.255.255.255';
       const String fakeProtocol = 'http://';
+      const String fakeRouterIp = '100.100.100.1';
+      const int fakeRouterPort = 8080;
 
-      final mockPayload = WolPayload(
-        fakeMacAddress,
-        fakeIp,
-        fakeBroadcastAddress,
-      );
+      final mockPayload = ShutdownPayload(fakeIp, 'linux', 'ubuntu');
 
       final mockClient = MockClient((http.Request request) async {
         return http.Response('{"message": "Failed to reach machine"}', 500);
@@ -68,6 +72,8 @@ void main() {
       // Act
       final result = await wolManager.sendShutdownSignal(
         fakeProtocol,
+        fakeRouterIp,
+        fakeRouterPort,
         mockPayload,
       );
 
