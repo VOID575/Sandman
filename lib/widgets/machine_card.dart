@@ -3,7 +3,8 @@ import '../api/wol_manager.dart';
 import '../constants/api_constants.dart';
 import '../database/app_database.dart';
 import '../models/machine.dart';
-import '../models/wol_payload.dart';
+import '../models/http_payloads/shutdown_payload.dart';
+import '../models/http_payloads/wol_payload.dart';
 import '../theme/app_theme.dart';
 import 'status_badges.dart';
 
@@ -59,8 +60,22 @@ class _MachineCardState extends State<MachineCard> {
       final isOffline = _currentMachine.status == MachineStatus.offline;
 
       final response = isOffline
-          ? await _wolManager.sendWolSignal(ApiConstants.http, payload)
-          : await _wolManager.sendShutdownSignal(ApiConstants.http, payload);
+          ? await _wolManager.sendWolSignal(
+              ApiConstants.http,
+              widget.network.routerIp,
+              widget.network.routerPort,
+              payload,
+            )
+          : await _wolManager.sendShutdownSignal(
+              ApiConstants.http,
+              widget.network.routerIp,
+              widget.network.routerPort,
+              ShutdownPayload(
+                _currentMachine.tailscaleIp,
+                _currentMachine.os,
+                _currentMachine.sshUser,
+              ),
+            );
 
       if (!mounted) return;
 

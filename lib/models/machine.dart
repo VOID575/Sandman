@@ -11,6 +11,8 @@ class Machine extends Table {
   TextColumn get name => text()();
   TextColumn get tailscaleIp => text()();
   TextColumn get macAddress => text()();
+  TextColumn get os => text().withDefault(const Constant('linux'))();
+  TextColumn get sshUser => text().withDefault(const Constant(''))();
 
   IntColumn get status =>
       intEnum<MachineStatus>().withDefault(const Constant(1))();

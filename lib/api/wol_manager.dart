@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:sandman/models/api_wol_response.dart';
-import 'package:sandman/models/wol_payload.dart';
+import 'package:sandman/models/http_payloads/api_wol_response.dart';
+import 'package:sandman/models/http_payloads/wol_payload.dart';
+import 'package:sandman/models/http_payloads/shutdown_payload.dart';
 import 'package:sandman/constants/api_constants.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,13 +13,19 @@ class WolManager {
 
   Future<ApiWolResponse> sendWolSignal(
     String httpProtocol,
+    String routerIp,
+    int routerPort,
     WolPayload wolPayload,
   ) async {
     Uri url = Uri.parse(
-      '$httpProtocol${wolPayload.virtualIpv4}${ApiConstants.wakeonlanRoute}',
+      '$httpProtocol$routerIp:$routerPort${ApiConstants.wakeonlanRoute}',
     );
 
-    http.Response response = await client.post(url);
+    http.Response response = await client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(wolPayload.toJson()),
+    );
 
     Map<String, dynamic> body =
         jsonDecode(response.body) as Map<String, dynamic>;
@@ -32,16 +39,25 @@ class WolManager {
 
   Future<ApiWolResponse> sendShutdownSignal(
     String httpProtocol,
-    WolPayload wolPayload,
+    String routerIp,
+    int routerPort,
+    ShutdownPayload shutdownPayload,
   ) async {
     Uri url = Uri.parse(
-      '$httpProtocol${wolPayload.virtualIpv4}${ApiConstants.shutdownRoute}',
+      '$httpProtocol$routerIp:$routerPort${ApiConstants.shutdownRoute}',
     );
 
-    http.Response response = await client.post(url);
+    http.Response response = await client.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(shutdownPayload.toJson()),
+    );
 
     Map<String, dynamic> body =
         jsonDecode(response.body) as Map<String, dynamic>;
-    return ApiWolResponse(response.statusCode, body['message']!);
+    return ApiWolResponse(
+      response.statusCode,
+      body['message'] ?? body['error'] ?? 'Unknown Error',
+    );
   }
 }
