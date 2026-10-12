@@ -296,6 +296,8 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
   final _nameController = TextEditingController();
   final _tailscaleIpController = TextEditingController();
   final _macAddressController = TextEditingController();
+  final _sshUserController = TextEditingController();
+  String _selectedOs = 'linux'; // default
 
   @override
   void initState() {
@@ -303,6 +305,7 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
     _nameController.addListener(() => setState(() {}));
     _tailscaleIpController.addListener(() => setState(() {}));
     _macAddressController.addListener(() => setState(() {}));
+    _sshUserController.addListener(() => setState(() {}));
   }
 
   @override
@@ -310,6 +313,7 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
     _nameController.dispose();
     _tailscaleIpController.dispose();
     _macAddressController.dispose();
+    _sshUserController.dispose();
     super.dispose();
   }
 
@@ -322,6 +326,10 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
       return false;
     }
     if (Validators.validateMac(_macAddressController.text) != null) {
+      return false;
+    }
+    if (Validators.validateRequired(_sshUserController.text, 'ssh user') !=
+        null) {
       return false;
     }
     return true;
@@ -354,6 +362,32 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
                 decoration: const InputDecoration(labelText: 'MAC Address'),
                 validator: Validators.validateMac,
               ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                initialValue: _selectedOs,
+                decoration: const InputDecoration(
+                  labelText: 'Operating System',
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'linux', child: Text('Linux')),
+                  DropdownMenuItem(value: 'windows', child: Text('Windows')),
+                ],
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedOs = newValue;
+                    });
+                  }
+                },
+              ),
+              TextFormField(
+                controller: _sshUserController,
+                decoration: const InputDecoration(
+                  labelText: 'SSH User (Tailscale)',
+                ),
+                validator: (value) =>
+                    Validators.validateRequired(value, 'ssh user'),
+              ),
             ],
           ),
         ),
@@ -374,6 +408,8 @@ class _AddMachineDialogState extends State<_AddMachineDialog> {
                         name: _nameController.text,
                         tailscaleIp: _tailscaleIpController.text,
                         macAddress: _macAddressController.text,
+                        os: drift.Value(_selectedOs),
+                        sshUser: drift.Value(_sshUserController.text),
                         status: const drift.Value(MachineStatus.offline),
                       ),
                     );

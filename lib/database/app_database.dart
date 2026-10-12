@@ -46,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -60,6 +60,10 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 3) {
           await m.addColumn(network, network.routerMacAddress);
+        }
+        if (from < 4) {
+          await m.addColumn(machine, machine.os);
+          await m.addColumn(machine, machine.sshUser);
         }
       },
       beforeOpen: (details) async {
