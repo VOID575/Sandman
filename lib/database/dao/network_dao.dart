@@ -11,9 +11,23 @@ class NetworkDao extends DatabaseAccessor<AppDatabase> with _$NetworkDaoMixin {
   // Getters
   Future<List<NetworkData>> getAllNetworks() => select(network).get();
 
+  Future<NetworkData?> getNetworkById(int networkId) =>
+      (select(network)..where((n) => n.id.equals(networkId))).getSingleOrNull();
+
   // Setters
   Future<int> insertNetwork(NetworkCompanion networkCompanion) =>
       into(network).insert(networkCompanion);
+
+  Future<int> updateNetworkStatus({
+    required int networkId,
+    required bool isGatewayRunning,
+    required int runningMachines,
+  }) => (update(network)..where((n) => n.id.equals(networkId))).write(
+    NetworkCompanion(
+      isGatewayRunning: Value(isGatewayRunning),
+      runningMachines: Value(runningMachines),
+    ),
+  );
 
   // "go" delete all rows matching the where clause
   Future<int> deleteNetwork(int networkId) =>

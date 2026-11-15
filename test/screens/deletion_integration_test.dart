@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
@@ -21,8 +21,8 @@ void main() {
       NetworkCompanion.insert(
         name: 'Home Network',
         description: 'My home network',
-        routerIp: '192.168.1.1',
-        routerPort: 9,
+        gatewayIp: '192.168.1.1',
+        gatewayPort: 9,
         broadcastAddress: const drift.Value('255.255.255.255'),
       ),
     );
@@ -31,8 +31,8 @@ void main() {
       NetworkCompanion.insert(
         name: 'Office Network',
         description: 'My office network',
-        routerIp: '10.0.0.1',
-        routerPort: 9,
+        gatewayIp: '10.0.0.1',
+        gatewayPort: 9,
         broadcastAddress: const drift.Value('255.255.255.255'),
       ),
     );

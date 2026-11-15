@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../database/app_database.dart';
 import 'status_badges.dart';
 
@@ -44,7 +44,7 @@ class NetworkCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  RouterStatusBadge(isRunning: network.isRouterRunning),
+                  GatewayStatusBadge(isRunning: network.isGatewayRunning),
                 ],
               ),
               const SizedBox(height: 8),

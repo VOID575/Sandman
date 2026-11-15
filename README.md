@@ -16,7 +16,7 @@
 ## Project Overview
 **Sandman** is a comprehensive solution designed for IT administrators and power users who need to manage multiple local networks remotely. 
 
-Rather than exposing dangerous ports to the public internet, Sandman relies on a secure **Tailscale VPN tunnel**. It communicates with a lightweight, custom **Go API** deployed on local routers (or mini-PCs like Raspberry Pis) to trigger Wake-on-LAN magic packets and safely check the status of offline or sleeping machines.
+Rather than exposing dangerous ports to the public internet, Sandman relies on a secure **Tailscale VPN tunnel**. It communicates with a lightweight, custom **Go API** deployed on local gateways (or mini-PCs like Raspberry Pis) to trigger Wake-on-LAN magic packets and safely check the status of offline or sleeping machines.
 
 ## Key Features
 - **Multi-Network Management**: Easily organize and switch between different environments (e.g., Home, Office, Sandbox).
@@ -27,7 +27,7 @@ Rather than exposing dangerous ports to the public internet, Sandman relies on a
 
 ## Tech Stack
 - **Frontend (Mobile)**: [Flutter](https://flutter.dev/) & Dart
-- **Backend (Router Agent)**: [Go (Golang)](https://go.dev/)
+- **Backend (Gateway Agent)**: [Go (Golang)](https://go.dev/)
 - **Secure Networking**: [Tailscale](https://tailscale.com/)
 - **Local Persistence**: [Drift (SQLite)](https://drift.simonbinder.eu/)
 
@@ -47,16 +47,16 @@ graph TD
     end
 
     subgraph LAN [Remote Local Network]
-        Router[Router / Mini-PC\nGo WOL API]
+        Gateway[Gateway / Mini-PC\nGo WOL API]
         PC1[Desktop PC\nOffline]
         PC2[Home Server\nOnline]
     end
 
     UI -- HTTP REST API --> Tunnel
-    Tunnel -- 100.x.y.z:Port --> Router
+    Tunnel -- 100.x.y.z:Port --> Gateway
 
-    Router -. UDP Magic Packet .-> PC1
-    Router -- ICMP/TCP Ping --> PC2
+    Gateway -. UDP Magic Packet .-> PC1
+    Gateway -- ICMP/TCP Ping --> PC2
 
     classDef frontend fill:#02569B,stroke:#01437a,color:white;
     classDef backend fill:#00ADD8,stroke:#008baf,color:white;
@@ -64,7 +64,7 @@ graph TD
     classDef network fill:#f59e0b,stroke:#d97706,color:white;
 
     class UI frontend;
-    class Router backend;
+    class Gateway backend;
     class Tunnel network;
     class PC1,PC2 infra;
 ```
@@ -75,7 +75,7 @@ Here is the sequence representing a typical Wake-on-LAN execution combined with 
 ```mermaid
 sequenceDiagram
     participant App as Flutter App
-    participant API as Go API (Router)
+    participant API as Go API (Gateway)
     participant PC as Target Machine
 
     Note over App, PC: Wake-on-LAN Execution
@@ -102,21 +102,21 @@ sequenceDiagram
 ## Prerequisites
 Before you begin, ensure you have the following requirements met:
 - The [Flutter SDK](https://docs.flutter.dev/get-started/install) installed on your development machine.
-- The [Go Compiler](https://go.dev/doc/install) installed (to build the router API).
+- The [Go Compiler](https://go.dev/doc/install) installed (to build the gateway API).
 - A [Tailscale](https://tailscale.com/) account with devices successfully connected to your tailnet.
-- A Router, Mini-PC (e.g., Raspberry Pi), or NAS inside the target LAN capable of remaining permanently online and running the compiled Go binary.
+- A Gateway, Mini-PC (e.g., Raspberry Pi), or NAS inside the target LAN capable of remaining permanently online and running the compiled Go binary.
 
 ## Installation & Setup
 
-### 1. Backend (Go API on the Router)
+### 1. Backend (Go API on the Gateway)
 The backend service must be running on a machine that stays awake inside your local network.
 
 1. Navigate to the Go API directory (assuming it is hosted in the same repository or a sub-folder).
-2. Cross-compile the binary for your specific router architecture. For example, if your router is an ARM64 Linux machine:
+2. Cross-compile the binary for your specific gateway architecture. For example, if your gateway is an ARM64 Linux machine:
    ```bash
    env GOOS=linux GOARCH=arm64 go build -o wol_api
    ```
-3. Transfer the `wol_api` binary to your router (via `scp` or `sftp`).
+3. Transfer the `wol_api` binary to your gateway (via `scp` or `sftp`).
 4. Set it up to run as a background service. On most modern Linux systems using `systemd`, create a file at `/etc/systemd/system/wol_api.service`:
    ```ini
    [Unit]
@@ -169,9 +169,9 @@ To install Sandman on your physical Android device as a standalone app, you can 
 ## Usage Guide
 1. **Connect your Phone**: Ensure the Tailscale VPN app is active on your mobile device.
 2. **Create a Network**: Open **Sandman**, tap the `+` Floating Action Button on the main menu to create a new network.
-3. **Configure Router Details**: Input the Tailscale IP of your router (e.g., `100.x.x.x`) and the port where you deployed the Go API.
+3. **Configure Gateway Details**: Input the Tailscale IP of your gateway (e.g., `100.x.x.x`) and the port where you deployed the Go API.
 4. **Add Machines**: Input the Name, local IP, and MAC address of the machines you want to wake. The Broadcast Address will default to `255.255.255.255` but can be adjusted if your subnet differs.
-5. **Control**: Tap the Power Button on a machine card. It will instantly dispatch the magic packet through the secure tunnel to the router, which broadcasts it locally!
+5. **Control**: Tap the Power Button on a machine card. It will instantly dispatch the magic packet through the secure tunnel to the gateway, which broadcasts it locally!
 
 ---
 

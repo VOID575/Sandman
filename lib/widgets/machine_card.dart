@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../api/wol_manager.dart';
 import '../constants/api_constants.dart';
 import '../database/app_database.dart';
@@ -14,6 +14,7 @@ class MachineCard extends StatefulWidget {
 
   final WolManager? wolManager;
   final AppDatabase? appDatabase;
+  final ValueChanged<MachineData>? onStatusChanged;
 
   const MachineCard({
     super.key,
@@ -21,6 +22,7 @@ class MachineCard extends StatefulWidget {
     required this.network,
     this.wolManager,
     this.appDatabase,
+    this.onStatusChanged,
   });
 
   @override
@@ -54,7 +56,7 @@ class _MachineCardState extends State<MachineCard> {
       final payload = WolPayload(
         _currentMachine.macAddress,
         widget.network.broadcastAddress,
-        widget.network.routerIp,
+        _currentMachine.tailscaleIp,
       );
 
       final isOffline = _currentMachine.status == MachineStatus.offline;
@@ -62,14 +64,14 @@ class _MachineCardState extends State<MachineCard> {
       final response = isOffline
           ? await _wolManager.sendWolSignal(
               ApiConstants.http,
-              widget.network.routerIp,
-              widget.network.routerPort,
+              widget.network.gatewayIp,
+              widget.network.gatewayPort,
               payload,
             )
           : await _wolManager.sendShutdownSignal(
               ApiConstants.http,
-              widget.network.routerIp,
-              widget.network.routerPort,
+              widget.network.gatewayIp,
+              widget.network.gatewayPort,
               ShutdownPayload(
                 _currentMachine.tailscaleIp,
                 _currentMachine.os,
@@ -101,6 +103,7 @@ class _MachineCardState extends State<MachineCard> {
           setState(() {
             _currentMachine = updatedMachine;
           });
+          widget.onStatusChanged?.call(updatedMachine);
         }
       } else {
         // API Error
@@ -115,7 +118,7 @@ class _MachineCardState extends State<MachineCard> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: Could not reach router'),
+          content: Text('Error: Could not reach gateway'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );

@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import '../api/wol_manager.dart';
 import '../database/app_database.dart';
 import '../widgets/network_card.dart';
 import 'network_details_screen.dart';
@@ -7,12 +8,14 @@ class NetworkListView extends StatelessWidget {
   final List<NetworkData> networks;
   final VoidCallback onCreateNetwork;
   final VoidCallback onRefresh;
+  final WolManager? wolManager;
 
   const NetworkListView({
     super.key,
     required this.networks,
     required this.onCreateNetwork,
     required this.onRefresh,
+    this.wolManager,
   });
 
   @override
@@ -41,7 +44,7 @@ class NetworkListView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Create your first network to start managing your virtual machines and routers.',
+                'Create your first network to start managing your virtual machines and gateways.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -78,14 +81,15 @@ class NetworkListView extends StatelessWidget {
         return NetworkCard(
           network: network,
           onTap: () async {
-            final result = await Navigator.of(context).push(
+            await Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => NetworkDetailsScreen(network: network),
+                builder: (context) => NetworkDetailsScreen(
+                  network: network,
+                  wolManager: wolManager,
+                ),
               ),
             );
-            if (result == true) {
-              onRefresh();
-            }
+            onRefresh();
           },
         );
       },

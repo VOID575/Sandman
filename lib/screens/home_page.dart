@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import '../api/wol_manager.dart';
 import '../database/app_database.dart';
 import 'network_list_view.dart';
 import 'create_network_screen.dart';
@@ -7,12 +8,14 @@ class HomePage extends StatefulWidget {
   final String title;
   final bool isDarkMode;
   final Function(bool) onThemeChanged;
+  final WolManager? wolManager;
 
   const HomePage({
     super.key,
     required this.title,
     required this.isDarkMode,
     required this.onThemeChanged,
+    this.wolManager,
   });
 
   @override
@@ -32,11 +35,14 @@ class _HomePageState extends State<HomePage> {
     _loadNetworks();
   }
 
-  Future<void> _loadNetworks() async {
-    setState(() {
-      _isLoading = true;
-    });
+  Future<void> _loadNetworks({bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     final networks = await _appDatabase.networkDao.getAllNetworks();
+    if (!mounted) return;
     setState(() {
       _networks = networks;
       _isLoading = false;
@@ -95,7 +101,8 @@ class _HomePageState extends State<HomePage> {
             NetworkListView(
               networks: _networks,
               onCreateNetwork: _createNewNetwork,
-              onRefresh: _loadNetworks,
+              onRefresh: () => _loadNetworks(showLoading: false),
+              wolManager: widget.wolManager,
             ),
 
           if (_isMenuOpen)
