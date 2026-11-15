@@ -44,7 +44,7 @@ class NetworkListView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Create your first network to start managing your virtual machines and routers.',
+                'Create your first network to start managing your virtual machines and gateways.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,

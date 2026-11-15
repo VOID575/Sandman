@@ -267,13 +267,15 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Router Status',
+                          'Gateway Status',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onSurface,
                           ),
                         ),
-                        RouterStatusBadge(isRunning: _network.isRouterRunning),
+                        GatewayStatusBadge(
+                          isRunning: _network.isGatewayRunning,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -305,7 +307,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'IP: ${widget.network.routerIp}',
+                                'IP: ${_network.gatewayIp}',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                   fontFamily: 'monospace',
@@ -323,7 +325,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'MAC: ${widget.network.routerMacAddress}',
+                                'MAC: ${_network.gatewayMacAddress}',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                   fontFamily: 'monospace',

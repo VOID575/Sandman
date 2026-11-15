@@ -8,7 +8,7 @@ class DbConstants {
     CREATE TABLE $tableNetworks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      router_ip TEXT NOT NULL,
+      gateway_ip TEXT NOT NULL,
       api_key TEXT
     )
   ''';

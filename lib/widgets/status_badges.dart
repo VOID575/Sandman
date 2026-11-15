@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/machine.dart';
 
-class RouterStatusBadge extends StatelessWidget {
+class GatewayStatusBadge extends StatelessWidget {
   final bool isRunning;
 
-  const RouterStatusBadge({super.key, required this.isRunning});
+  const GatewayStatusBadge({super.key, required this.isRunning});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class RouterStatusBadge extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            isRunning ? 'Router Online' : 'Router Offline',
+            isRunning ? 'Gateway Online' : 'Gateway Offline',
             style: theme.textTheme.labelMedium?.copyWith(
               color: color,
               fontWeight: FontWeight.bold,

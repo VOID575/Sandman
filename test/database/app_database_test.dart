@@ -23,8 +23,8 @@ void main() {
       final networkCompanion = NetworkCompanion.insert(
         name: 'Test Network',
         description: 'A network for testing',
-        routerIp: '192.168.1.1',
-        routerPort: 8080,
+        gatewayIp: '192.168.1.1',
+        gatewayPort: 8080,
         broadcastAddress: const Value('255.255.255.255'),
       );
 
@@ -38,10 +38,10 @@ void main() {
       expect(allNetworks.first.id, id);
       expect(allNetworks.first.name, 'Test Network');
       expect(allNetworks.first.description, 'A network for testing');
-      expect(allNetworks.first.routerIp, '192.168.1.1');
-      expect(allNetworks.first.routerPort, 8080);
+      expect(allNetworks.first.gatewayIp, '192.168.1.1');
+      expect(allNetworks.first.gatewayPort, 8080);
       expect(allNetworks.first.runningMachines, 0); // Default value
-      expect(allNetworks.first.isRouterRunning, false); // Default value
+      expect(allNetworks.first.isGatewayRunning, false); // Default value
     },
   );
 
@@ -53,8 +53,8 @@ void main() {
         NetworkCompanion.insert(
           name: 'Network for Machine',
           description: 'Desc',
-          routerIp: '10.0.0.1',
-          routerPort: 9,
+          gatewayIp: '10.0.0.1',
+          gatewayPort: 9,
           broadcastAddress: const Value('255.255.255.255'),
         ),
       );
@@ -93,8 +93,8 @@ void main() {
         NetworkCompanion.insert(
           name: 'Network for Machine',
           description: 'Desc',
-          routerIp: '10.0.0.1',
-          routerPort: 9,
+          gatewayIp: '10.0.0.1',
+          gatewayPort: 9,
           broadcastAddress: const Value('255.255.255.255'),
         ),
       );

@@ -56,7 +56,7 @@ class _MachineCardState extends State<MachineCard> {
       final payload = WolPayload(
         _currentMachine.macAddress,
         widget.network.broadcastAddress,
-        widget.network.routerIp,
+        _currentMachine.tailscaleIp,
       );
 
       final isOffline = _currentMachine.status == MachineStatus.offline;
@@ -64,14 +64,14 @@ class _MachineCardState extends State<MachineCard> {
       final response = isOffline
           ? await _wolManager.sendWolSignal(
               ApiConstants.http,
-              widget.network.routerIp,
-              widget.network.routerPort,
+              widget.network.gatewayIp,
+              widget.network.gatewayPort,
               payload,
             )
           : await _wolManager.sendShutdownSignal(
               ApiConstants.http,
-              widget.network.routerIp,
-              widget.network.routerPort,
+              widget.network.gatewayIp,
+              widget.network.gatewayPort,
               ShutdownPayload(
                 _currentMachine.tailscaleIp,
                 _currentMachine.os,
@@ -118,7 +118,7 @@ class _MachineCardState extends State<MachineCard> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: Could not reach router'),
+          content: Text('Error: Could not reach gateway'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );

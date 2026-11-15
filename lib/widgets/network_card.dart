@@ -44,7 +44,7 @@ class NetworkCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  RouterStatusBadge(isRunning: network.isRouterRunning),
+                  GatewayStatusBadge(isRunning: network.isGatewayRunning),
                 ],
               ),
               const SizedBox(height: 8),

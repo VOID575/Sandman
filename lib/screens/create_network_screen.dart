@@ -17,9 +17,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
 
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
-  final _routerIpController = TextEditingController();
-  final _routerMacAddressController = TextEditingController();
-  final _routerPortController = TextEditingController();
+  final _gatewayIpController = TextEditingController();
+  final _gatewayMacAddressController = TextEditingController();
+  final _gatewayPortController = TextEditingController();
   final _broadcastAddressController = TextEditingController(
     text: '255.255.255.255',
   );
@@ -33,9 +33,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
     // Add listeners to rebuild UI and enable/disable button
     _nameController.addListener(() => setState(() {}));
     _descController.addListener(() => setState(() {}));
-    _routerIpController.addListener(() => setState(() {}));
-    _routerMacAddressController.addListener(() => setState(() {}));
-    _routerPortController.addListener(() => setState(() {}));
+    _gatewayIpController.addListener(() => setState(() {}));
+    _gatewayMacAddressController.addListener(() => setState(() {}));
+    _gatewayPortController.addListener(() => setState(() {}));
     _broadcastAddressController.addListener(() => setState(() {}));
   }
 
@@ -43,9 +43,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
   void dispose() {
     _nameController.dispose();
     _descController.dispose();
-    _routerIpController.dispose();
-    _routerMacAddressController.dispose();
-    _routerPortController.dispose();
+    _gatewayIpController.dispose();
+    _gatewayMacAddressController.dispose();
+    _gatewayPortController.dispose();
     _broadcastAddressController.dispose();
     super.dispose();
   }
@@ -58,14 +58,14 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
         null) {
       return false;
     }
-    if (Validators.validateIp(_routerIpController.text) != null) return false;
-    if (Validators.validateMac(_routerMacAddressController.text) != null) {
+    if (Validators.validateIp(_gatewayIpController.text) != null) return false;
+    if (Validators.validateMac(_gatewayMacAddressController.text) != null) {
       return false;
     }
     if (Validators.validateIp(_broadcastAddressController.text) != null) {
       return false;
     }
-    if (Validators.validatePort(_routerPortController.text) != null) {
+    if (Validators.validatePort(_gatewayPortController.text) != null) {
       return false;
     }
     return true;
@@ -91,9 +91,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
       final networkCompanion = NetworkCompanion.insert(
         name: _nameController.text,
         description: _descController.text,
-        routerIp: _routerIpController.text,
-        routerMacAddress: drift.Value(_routerMacAddressController.text),
-        routerPort: int.parse(_routerPortController.text),
+        gatewayIp: _gatewayIpController.text,
+        gatewayMacAddress: drift.Value(_gatewayMacAddressController.text),
+        gatewayPort: int.parse(_gatewayPortController.text),
         broadcastAddress: drift.Value(_broadcastAddressController.text),
       );
 
@@ -151,7 +151,7 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Router Configuration',
+              'Gateway Configuration',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -163,9 +163,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
                 Expanded(
                   flex: 2,
                   child: TextFormField(
-                    controller: _routerIpController,
+                    controller: _gatewayIpController,
                     decoration: const InputDecoration(
-                      labelText: 'Router IP Address',
+                      labelText: 'Gateway IP Address',
                       border: OutlineInputBorder(),
                     ),
                     validator: Validators.validateIp,
@@ -174,9 +174,10 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: TextFormField(
-                    controller: _routerPortController,
+                    controller: _gatewayPortController,
                     decoration: const InputDecoration(
-                      labelText: 'WOL Port',
+                      labelText: 'Gateway API Port',
+                      hintText: '8080',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -188,9 +189,9 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: _routerMacAddressController,
+              controller: _gatewayMacAddressController,
               decoration: const InputDecoration(
-                labelText: 'Router MAC Address',
+                labelText: 'Gateway MAC Address',
                 border: OutlineInputBorder(),
               ),
               validator: Validators.validateMac,
@@ -200,6 +201,8 @@ class _CreateNetworkScreenState extends State<CreateNetworkScreen> {
               controller: _broadcastAddressController,
               decoration: const InputDecoration(
                 labelText: 'Broadcast Address',
+                helperText:
+                    'Subnet broadcast IP (e.g. 192.168.1.255) or 255.255.255.255',
                 border: OutlineInputBorder(),
               ),
               validator: Validators.validateIp,
