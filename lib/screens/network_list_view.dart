@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../api/wol_manager.dart';
 import '../database/app_database.dart';
 import '../widgets/network_card.dart';

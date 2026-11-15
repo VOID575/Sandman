@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:drift/drift.dart' as drift;
 import '../api/wol_manager.dart';
 import '../constants/api_constants.dart';
