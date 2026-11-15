@@ -1,44 +1,136 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
+import '../api/wol_manager.dart';
+import '../constants/api_constants.dart';
 import '../database/app_database.dart';
+import '../services/network_status_service.dart';
 import '../widgets/status_badges.dart';
 import '../widgets/machine_card.dart';
 
 class NetworkDetailsScreen extends StatefulWidget {
   final NetworkData network;
+  final WolManager? wolManager;
+  final AppDatabase? appDatabase;
+  final NetworkStatusService? statusService;
+  final Duration pollingInterval;
 
-  const NetworkDetailsScreen({super.key, required this.network});
+  const NetworkDetailsScreen({
+    super.key,
+    required this.network,
+    this.wolManager,
+    this.appDatabase,
+    this.statusService,
+    this.pollingInterval = ApiConstants.pollingInterval,
+  });
 
   @override
   State<NetworkDetailsScreen> createState() => _NetworkDetailsScreenState();
 }
 
 class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
-  final _appDatabase = AppDatabase.instance;
+  late final AppDatabase _appDatabase =
+      widget.appDatabase ?? AppDatabase.instance;
+  late final NetworkStatusService _statusService =
+      widget.statusService ??
+      NetworkStatusService(
+        wolManager: widget.wolManager,
+        appDatabase: _appDatabase,
+      );
+
+  late NetworkData _network = widget.network;
   List<MachineData> _machines = [];
   bool _isLoading = true;
+  Timer? _pollingTimer;
+  Future<void>? _inFlightRefresh;
 
   @override
   void initState() {
     super.initState();
-    _loadMachines();
+    _initializeScreen();
+  }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _initializeScreen() async {
+    await _loadMachines();
+    if (!mounted) return;
+    _startPolling();
+    unawaited(_refreshMachines());
+  }
+
+  void _startPolling() {
+    _pollingTimer?.cancel();
+    if (widget.pollingInterval <= Duration.zero) return;
+    _pollingTimer = Timer.periodic(widget.pollingInterval, (_) {
+      if (_inFlightRefresh == null) {
+        unawaited(_refreshMachines());
+      }
+    });
   }
 
   Future<void> _loadMachines() async {
     final machines = await _appDatabase.machineDao.getMachinesForNetwork(
-      widget.network.id,
+      _network.id,
     );
+    if (!mounted) return;
     setState(() {
       _machines = machines;
       _isLoading = false;
     });
   }
 
-  Future<void> _refreshMachines() async {
-    // In a real app, you would make an API call here to fetch the latest statuses.
-    // TODO : Add an api route to get machine statuses
-    // For now, we'll just reload from the database.
-    await _loadMachines();
+  Future<void> _refreshMachines() {
+    final inFlight = _inFlightRefresh;
+    if (inFlight != null) {
+      return inFlight;
+    }
+
+    final refreshFuture = _performRefresh();
+    _inFlightRefresh = refreshFuture;
+    return refreshFuture;
+  }
+
+  Future<void> _performRefresh() async {
+    try {
+      final snapshot = await _statusService.refreshNetworkStatus(_network);
+      if (!mounted) return;
+      setState(() {
+        _network = snapshot.network;
+        _machines = snapshot.machines;
+        _isLoading = false;
+      });
+    } finally {
+      _inFlightRefresh = null;
+    }
+  }
+
+  void _handleMachineStatusChanged(MachineData updatedMachine) {
+    _statusService.markTransitionStarted(updatedMachine.id);
+    if (!mounted) return;
+    setState(() {
+      final index = _machines.indexWhere((m) => m.id == updatedMachine.id);
+      if (index != -1) {
+        _machines[index] = updatedMachine;
+      }
+    });
+    unawaited(_syncRunningMachinesCount());
+  }
+
+  Future<void> _syncRunningMachinesCount() async {
+    final updatedNetwork = await _statusService.syncRunningMachinesCount(
+      _network,
+      _machines,
+    );
+    if (!mounted) return;
+    setState(() {
+      _network = updatedNetwork;
+    });
   }
 
   Future<void> _showDeleteConfirmation(BuildContext context) async {
@@ -181,9 +273,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                             color: theme.colorScheme.onSurface,
                           ),
                         ),
-                        RouterStatusBadge(
-                          isRunning: widget.network.isRouterRunning,
-                        ),
+                        RouterStatusBadge(isRunning: _network.isRouterRunning),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -256,7 +346,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Pull down to refresh statuses',
+                      'Auto-updates every 10s • Pull down to refresh',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                         fontStyle: FontStyle.italic,
@@ -348,6 +438,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                         await _appDatabase.machineDao.deleteMachine(
                           machine.toCompanion(false),
                         );
+                        await _syncRunningMachinesCount();
 
                         // 3. Show feedback with Undo action
                         if (context.mounted) {
@@ -372,6 +463,7 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
 
                                   // We reload the network to place it back safely
                                   await _loadMachines();
+                                  await _syncRunningMachinesCount();
                                 },
                               ),
                             ),
@@ -380,7 +472,10 @@ class _NetworkDetailsScreenState extends State<NetworkDetailsScreen> {
                       },
                       child: MachineCard(
                         machine: machine,
-                        network: widget.network,
+                        network: _network,
+                        wolManager: widget.wolManager,
+                        appDatabase: _appDatabase,
+                        onStatusChanged: _handleMachineStatusChanged,
                       ),
                     ),
                   );

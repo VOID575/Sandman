@@ -25,6 +25,11 @@ class MachineDao extends DatabaseAccessor<AppDatabase> with _$MachineDaoMixin {
   Future<bool> updateMachine(MachineData machineData) =>
       update(machine).replace(machineData);
 
+  Future<int> updateMachineStatus(int machineId, MachineStatus status) =>
+      (update(machine)..where((m) => m.id.equals(machineId))).write(
+        MachineCompanion(status: Value(status)),
+      );
+
   Future<int> deleteMachine(MachineCompanion machineCompanion) =>
       delete(machine).delete(machineCompanion);
 }

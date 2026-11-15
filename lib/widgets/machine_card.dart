@@ -14,6 +14,7 @@ class MachineCard extends StatefulWidget {
 
   final WolManager? wolManager;
   final AppDatabase? appDatabase;
+  final ValueChanged<MachineData>? onStatusChanged;
 
   const MachineCard({
     super.key,
@@ -21,6 +22,7 @@ class MachineCard extends StatefulWidget {
     required this.network,
     this.wolManager,
     this.appDatabase,
+    this.onStatusChanged,
   });
 
   @override
@@ -101,6 +103,7 @@ class _MachineCardState extends State<MachineCard> {
           setState(() {
             _currentMachine = updatedMachine;
           });
+          widget.onStatusChanged?.call(updatedMachine);
         }
       } else {
         // API Error
