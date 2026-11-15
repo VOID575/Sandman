@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -23,8 +24,8 @@ void main() {
       NetworkCompanion.insert(
         name: 'Test Network',
         description: 'Test Desc',
-        routerIp: '192.168.1.1',
-        routerPort: 9,
+        gatewayIp: '192.168.1.1',
+        gatewayPort: 9,
         broadcastAddress: const drift.Value('255.255.255.255'),
       ),
     );
@@ -75,6 +76,8 @@ void main() {
 
       final mockClient = MockClient((request) async {
         expect(request.url.path, contains('/wakeonlan'));
+        final body = jsonDecode(request.body) as Map<String, dynamic>;
+        expect(body['ip'], machine.tailscaleIp);
         return completer.future;
       });
       final wolManager = WolManager(client: mockClient);
